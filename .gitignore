@@ -1,0 +1,4 @@
+#Don't track these folders
+Data/
+Models/
+.ipynb_checkpoints/
