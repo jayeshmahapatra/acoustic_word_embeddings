@@ -34,6 +34,10 @@ def accuracy(out, yb):
 
 def train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path = "./Models/",verbose = True):
     
+    #Whether to save model every few epochs
+    save_epochs = False
+
+
     hist = {}
     train_acc_list = []
     val_acc_list = []
@@ -87,24 +91,26 @@ def train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path
                 val_acc += accuracy(y_pred, yb.long())
             #val_loss = sum(criterion(net(xb), yb.long()) for xb, yb in val_dl)
             #val_acc = sum(accuracy(net(xb), yb.long()) for xb, yb in val_dl)
-            if val_acc.cpu().detach().numpy() > best_val_acc:
-                best_val_acc = val_acc.cpu().detach().numpy()
-                path = save_path + "l2_best_model.pth"
+            if val_acc > best_val_acc:
+                best_val_acc = val_acc
+                path = save_path + "awe_best_model.pth"
                 if verbose:
                     print("Best val acc. Saving model...")
                 torch.save(net.state_dict(), path)
+
+        
+        
+        if verbose:
+            print("train loss: %.3f train acc: %.3f"%(train_loss/len(train_dl),train_acc/len(train_dl)))
+            print("val loss: %.3f val acc: %.3f"%(val_loss/len(val_dl),val_acc/len(val_dl)))
+        if epoch%5 == 0 and save_epochs:
+            path = save_path + "simple_awe_bs64_epoch_%d.pth"%(epoch)
+            torch.save(net.state_dict(), path)
 
         train_loss_list.append(train_loss.item()/len(train_dl))
         train_acc_list.append(train_acc.item()/len(train_dl))
         val_loss_list.append(val_loss.item()/len(val_dl))
         val_acc_list.append(val_acc.item()/len(val_dl))
-        
-        if verbose:
-            print("train loss: %.3f train acc: %.3f"%(train_loss/len(train_dl),train_acc/len(train_dl)))
-            print("val loss: %.3f val acc: %.3f"%(val_loss/len(val_dl),val_acc/len(val_dl)))
-        if epoch%5 == 0:
-            path = save_path + "simple_awe_bs64_epoch_%d.pth"%(epoch)
-            torch.save(net.state_dict(), path)
 
     
     hist['train_acc'] = train_acc_list
@@ -281,7 +287,7 @@ def test_model(net,test_dl,dev):
     print("Test Accuracy of best model is %f"%(test_acc))
     return test_acc   
 
-def plot_learning_curves(hist,name = 'learning_curves.png'):
+def plot_learning_curves(hist,name = 'learning_curves.png', show = True):
     
     num_epochs = len(hist['train_loss'])
     fig, axs = plt.subplots(2, 1, figsize = (9,9))
@@ -305,7 +311,8 @@ def plot_learning_curves(hist,name = 'learning_curves.png'):
 
     fig.tight_layout(pad = 2.0)
     plt.savefig(name)
-    plt.show()
+    if show:
+        plt.show()
 
 def run_data_study(splits,num_epochs,train_ds,val_dl,dev):
     lengths = [int(len(train_ds)*(1/splits)) for  i in range(splits)]
