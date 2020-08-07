@@ -1,0 +1,47 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class SimpleNet(nn.Module):
+    def __init__(self,num_output):
+        super(SimpleNet, self).__init__()
+        self.conv1 = nn.Conv1d(40,96,(10))
+        self.pool = nn.MaxPool1d(3)
+        self.conv2 = nn.Conv1d(96, 96, (8))
+        #self.fc1 = nn.Linear(1728, 1024)
+        self.fc1 = nn.Linear(672, 1024)
+        self.fc2 = nn.Linear(1024, num_output)
+        self.sm = nn.Softmax(dim = 1)
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))
+        #print(x.shape)
+        x = self.pool(F.relu(self.conv2(x)))
+        #print('Pre')
+        #print(x.shape)  
+        x = x.view(x.shape[0], -1)
+        #print('Post')
+        #print(x.shape)
+        x = F.relu(self.fc1(x))
+        #print(x.shape)
+        x = F.relu(self.fc2(x))
+        #print(x.shape)
+        x = F.log_softmax(x,dim=1)
+        #print(x.shape)
+        #print("Done")
+        return x
+    
+    def give_embeddings(self,x,dev):
+        x = self.pool(F.relu(self.conv1(x)))
+        #print(x.shape)
+        x = self.pool(F.relu(self.conv2(x)))
+        #print('Pre')
+        #print(x.shape)  
+        x = x.view(x.shape[0], -1)
+        #print('Post')
+        #print(x.shape)
+        x = F.relu(self.fc1(x))
+        #print(x.shape)
+        x = F.relu(self.fc2(x))
+        return x.cpu().detach().numpy() if dev.type == 'cuda' else x.detach().numpy()
+
+
