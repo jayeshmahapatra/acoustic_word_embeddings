@@ -160,7 +160,7 @@ def evaluate_model(net,test_dl, dev):
     
     
     #Remove the diagonal elements (word pairs with themselves)
-    mask = np.array(np.tril(np.ones((similarity.shape[0],similarity.shape[0])),-1),dtype = bool)
+    mask = np.array(np.tril(np.ones((similarity.shape[0],similarity.shape[0]), dtype= int),-1),dtype = bool)
     similarity = similarity[mask]
     distances = distances[mask]
     eval_labels = eval_labels[mask]
@@ -179,6 +179,7 @@ def evaluate_model(net,test_dl, dev):
     #avg_p = average_precision_score(eval_labels,2-distances)
     #avg_p = average_precision_score(eval_labels,2-distances)
     print('Average Precision is %f'%(avg_p))
+    return avg_p
 
 
 

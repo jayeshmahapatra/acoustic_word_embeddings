@@ -8,10 +8,10 @@ import pandas as pd
 
 if __name__ == '__main__':
 
-	load_list = ['Data/feats_cmvn.ark']
-	#load_list = ['/data/users/jmahapatra/data/feats_cmvn.ark']
+	#load_list = ['Data/feats_cmvn.ark']
+	load_list = ['/data/users/jmahapatra/data/feats_cmvn.ark']
 	
-	num_examples = 60000
+	num_examples = 200
 
 	dh = DataHelper(load_list,num_examples)
 	dh.load_data()
@@ -29,9 +29,11 @@ if __name__ == '__main__':
 
 
 	word_phoneme_dict = {}
+	word_spaced_dict = {}
 
 	#Calculate the word phonemes
 	for word in words:
+		word_spaced_dict[word] = ' '.join(word)
 		word_phoneme_dict[word] = phoney.phonize(word)
 
 	print('Finished Calculating embeddings')
@@ -47,20 +49,23 @@ if __name__ == '__main__':
 
 	homophone_dict = {}
 	homophone_dict["word_pairs"] = []
+	homophone_dict["orthographic_edit_distance"] = []
 	homophone_dict["phonetic_edit_distance"] = []
 
 	print('Number of word pairs after filtering',len(word_pairs))
 
 	for word_pair in word_pairs:
-		aligned_seq1, aligned_seq2, eDistance = alignSequences.align(word_phoneme_dict[word_pair[0]], word_phoneme_dict[word_pair[1]])		
+		aligned_seq1, aligned_seq2, or_eDistance = alignSequences.align(word_spaced_dict[word_pair[0]], word_spaced_dict[word_pair[1]])	
+		aligned_seq1, aligned_seq2, ph_eDistance = alignSequences.align(word_phoneme_dict[word_pair[0]], word_phoneme_dict[word_pair[1]])		
 
 		
 		homophone_dict["word_pairs"].append(word_pair)
-		homophone_dict["phonetic_edit_distance"].append(eDistance)
+		homophone_dict["orthographic_edit_distance"].append(or_eDistance)
+		homophone_dict["phonetic_edit_distance"].append(ph_eDistance)
 
 	homophone_df = pd.DataFrame(homophone_dict)
-	homophone_df.to_csv('Data/wordpairs2.txt', index= False)
-	#homophone_df.to_csv('/data/users/jmahapatra/data/homophones.txt', index= False)
+	#homophone_df.to_csv('Data/wordpairs_test.txt', index= False)
+	homophone_df.to_csv('/data/users/jmahapatra/data/homophones.txt', index= False)
 	
 
 
