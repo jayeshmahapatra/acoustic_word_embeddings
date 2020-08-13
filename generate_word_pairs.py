@@ -2,6 +2,7 @@ from sfba4.utils import alignSequences
 from itertools import product
 from big_phoney import BigPhoney
 from data_helpers import DataHelper
+import numpy as np
 import pandas as pd
 
 
@@ -11,7 +12,7 @@ if __name__ == '__main__':
 	#load_list = ['Data/feats_cmvn.ark']
 	load_list = ['/data/users/jmahapatra/data/feats_cmvn.ark']
 	
-	num_examples = 200
+	num_examples = np.Inf
 
 	dh = DataHelper(load_list,num_examples)
 	dh.load_data()
