@@ -32,11 +32,11 @@ def generate_word_phoneme_dict(words, phoney):
 
 def generate_nn(phoney):
 
-	homophones = pd.read_csv('/data/users/jmahapatra/data/homophones.txt')
-	#homophones = pd.read_csv('Data/wordpairs_test.txt')
+	wordpairs = pd.read_csv('/data/users/jmahapatra/data/homophones.txt')
+	#wordpairs = pd.read_csv('Data/wordpairs_test.txt')
 
 	#Get list of words
-	words = set(homophones["word_1"].to_list()).union(set(homophones["word_2"].to_list()))
+	words = set(wordpairs["word_1"].to_list()).union(set(wordpairs["word_2"].to_list()))
 	print('Number of Unique words ',len(words))
 
 
@@ -60,7 +60,7 @@ def generate_nn(phoney):
 
 	for word in words:
 
-		query = pd.concat([homophones.query("word_1 == '%s'"%(word)),swap_columns(homophones.query("word_2 == '%s'"%(word)))])
+		query = pd.concat([wordpairs.query("word_1 == '%s'"%(word)),swap_columns(wordpairs.query("word_2 == '%s'"%(word)))])
 
 		query["orthographic_sim"] = query.apply(lambda row: sim_score(100*row["orthographic_edit_distance"]/len(row["word_1"])), axis = 1)
 		query["raw_phonetic_sim"] = query.apply(lambda row: sim_score(100*row["raw_phonetic_edit_distance"]/len(word_phoneme_dict[row["word_1"]])), axis = 1)

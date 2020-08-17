@@ -14,7 +14,7 @@ def generate_pairs(phoney):
 	load_list = ['/data/users/jmahapatra/data/feats_cmvn.ark']
 	#load_list = ['Data/feats_cmvn.ark']
 	
-	num_examples = 1000
+	num_examples = np.Inf
 
 	dh = DataHelper(load_list,num_examples)
 	dh.load_data()
@@ -76,7 +76,7 @@ def generate_pairs(phoney):
 
 	homophone_df = pd.DataFrame(homophone_dict)
 	
-	homophone_df.to_csv('/data/users/jmahapatra/data/homophones.txt', index= False)
+	homophone_df.to_csv('/data/users/jmahapatra/data/wordpairs.txt', index= False)
 	#homophone_df.to_csv('Data/wordpairs_test.txt', index= False)
 	
 
