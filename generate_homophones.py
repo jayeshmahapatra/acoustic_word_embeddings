@@ -10,7 +10,7 @@ from generate_nearest_neighbours import swap_columns
 def generate_homophones():
 
 	#Load the word pairs dataframe
-	wordpairs = pd.read_csv('/data/users/jmahapatra/data/wordpairs.txt')
+	wordpairs_df = pd.read_csv('/data/users/jmahapatra/data/wordpairs.txt')
 	#wordpairs_df = pd.read_csv('Data/wordpairs_test.txt', sep = ',')
 
 	#Get the homophone pairs, discard the rest
