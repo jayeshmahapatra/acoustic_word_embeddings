@@ -36,7 +36,7 @@ def add_ser(wordpairs_filepath = '/data/users/jmahapatra/data/wordpairs.txt', wo
 	metric = 'cosine'
 
 	#Load the word embedding dict
-	word_embedding_dict_filepath = 'Data/word_embedding_dict.npy'
+	word_embedding_dict_filepath = '/data/users/jmahapatra/data/word_embedding_dict.npy'
 	word_embedding_dict = np.load(word_embedding_dict_filepath, allow_pickle = True)
 
 	embedding_similarity = []

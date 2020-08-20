@@ -64,6 +64,10 @@ def generate_homophones(wordpairs_filepath = '/data/users/jmahapatra/data/wordpa
 if __name__ == '__main__':
 
 
-	wordpairs_filepath = 'Data/wordpairs_test.txt'
-	homophones_filepath = 'Data/homophones.txt'
+	#wordpairs_filepath = 'Data/wordpairs_test.txt'
+	#homophones_filepath = 'Data/homophones.txt'
+
+	wordpairs_filepath = '/data/users/jmahapatra/data/wordpairs.txt'
+	homophones_filepath = '/data/users/jmahapatra/data/homophones.txt'
+
 	generate_homophones(wordpairs_filepath,homophones_filepath)
