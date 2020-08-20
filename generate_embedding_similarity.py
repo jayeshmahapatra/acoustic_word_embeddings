@@ -31,6 +31,9 @@ def generate_embedding_similarity(wordpairs_filepath = '/data/users/jmahapatra/d
 	    embedding_similarity_dict["word_1"].append(wordpair[0])
 	    embedding_similarity_dict["word_2"].append(wordpair[1])
 	    embedding_similarity_dict["%s_similarity"%(metric)].append(similarity.item())
+
+	    #if(i==1000):
+	    #	break
 	    
 
 	embedding_similarity_df = pd.DataFrame(embedding_similarity_dict)
