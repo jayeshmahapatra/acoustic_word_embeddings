@@ -92,7 +92,8 @@ if __name__ == '__main__':
 	num_output = len(c.keys())
 	net = SimpleNet(num_output)
 	net = net.float()
-	net.to(dev)
+	if dev.type == 'cuda':
+		net.to(dev)
 
 	#Load the best model
 	#best_model_path = "./Models/awe_best_model.pth"
