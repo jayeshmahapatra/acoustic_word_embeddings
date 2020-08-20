@@ -10,7 +10,6 @@ def add_ser(wordpairs_filepath = '/data/users/jmahapatra/data/wordpairs.txt', wo
 	#Read the wordpairs file
 	wordpairs_df = pd.read_csv(wordpairs_filepath)
 
-	wordpairs_df = wordpairs_df.head(1000)
 
 
 	#Read the Word phoneme dict

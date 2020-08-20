@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
 	#Load the wordpairs dataframe
 	wordpairs_with_ser = pd.read_csv('/data/users/jmahapatra/data/wordpairs_with_ser.txt')
-	#wordpairs_with_ser = pd.read_csv('Data/wordpairs_test_with_ser.txt')
+	#wordpairs_with_ser = pd.read_csv('Data/bla_wordpairs_test_with_ser.txt')
 
 
 	
