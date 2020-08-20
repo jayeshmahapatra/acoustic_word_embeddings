@@ -13,7 +13,7 @@ def generate_pairs(phoney,data_filepath = '/data/users/jmahapatra/data/feats_cmv
 	
 	load_list = [data_filepath]
 	
-	num_examples = 10000
+	num_examples = np.Inf
 
 	dh = DataHelper(load_list,num_examples)
 	dh.load_data()
