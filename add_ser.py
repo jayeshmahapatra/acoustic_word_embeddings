@@ -2,9 +2,7 @@
 import pandas as pd
 import numpy as np
 
-#Scikit learn
-from sklearn.metrics.pairwise import pairwise_kernels,paired_distances
-#from scipy import stats
+
 
 def add_ser(wordpairs_filepath = '/data/users/jmahapatra/data/wordpairs.txt', wordpairs_ser_filepath = '/data/users/jmahapatra/data/wordpairs_with_ser.txt'):
 
@@ -38,7 +36,11 @@ if __name__ == '__main__':
 	#wordpairs_ser_filepath = 'Data/wordpairs_test_with_ser.txt'
 	#add_ser(wordpairs_filepath, wordpairs_ser_filepath)
 
-	add_ser()
+	wordpairs_filepath = '/data/users/jmahapatra/data/wordpairs.txt'
+	wordpairs_ser_filepath = '/data/users/jmahapatra/data/wordpairs_with_ser.txt'
+	
+	add_ser(wordpairs_filepath, wordpairs_ser_filepath)
+
 
 	
 	
