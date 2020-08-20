@@ -2,6 +2,10 @@
 import pandas as pd
 import numpy as np
 
+#Scikit learn
+from sklearn.metrics.pairwise import pairwise_kernels,paired_distances
+#from scipy import stats
+
 def add_ser(wordpairs_filepath = '/data/users/jmahapatra/data/wordpairs.txt', wordpairs_ser_filepath = '/data/users/jmahapatra/data/wordpairs_with_ser.txt'):
 
 	#Read the wordpairs file
@@ -20,6 +24,7 @@ def add_ser(wordpairs_filepath = '/data/users/jmahapatra/data/wordpairs.txt', wo
 	wordpairs_df["word_2_orthographic_ser"] = wordpairs_df.apply(lambda row: row["orthographic_edit_distance"]/len(row["word_2"]), axis = 1)
 
 
+
 	#save the wordpairs dataframe
 	wordpairs_df.to_csv(wordpairs_ser_filepath, index = False)
 
@@ -29,9 +34,11 @@ def add_ser(wordpairs_filepath = '/data/users/jmahapatra/data/wordpairs.txt', wo
 
 if __name__ == '__main__':
 
-	wordpairs_filepath = 'Data/wordpairs_test.txt'
-	wordpairs_ser_filepath = 'Data/wordpairs_test_with_ser.txt'
-	add_ser(wordpairs_filepath, wordpairs_ser_filepath)
+	#wordpairs_filepath = 'Data/wordpairs_test.txt'
+	#wordpairs_ser_filepath = 'Data/wordpairs_test_with_ser.txt'
+	#add_ser(wordpairs_filepath, wordpairs_ser_filepath)
+
+	add_ser()
 
 	
 	

@@ -90,16 +90,11 @@ def homophone_task(homophones):
 if __name__ == '__main__':
 
 	#Load the wordpairs dataframe
-	wordpairs = pd.read_csv('Data/wordpairs_test.txt')
+	wordpairs_with_ser = pd.read_csv('Data/wordpairs_test_with_ser.txt')
 
 
 	
-	#Calculate the orthographic and phonetic ser
-	word_columns = ["word_1","word_2"]
 
-	for word_column in word_columns:
-		wordpairs["%s_orthographic_ser"%(word_column)] = wordpairs.apply(lambda row: row["orthographic_edit_distance"]/len(row[word_column]), axis = 1)
-		wordpairs["%s_phonetic_ser"%(word_column)] = wordpairs.apply(lambda row: row["phonetic_edit_distance"]/len(row[word_column]), axis = 1)
 
 
 	#Load the embedding nearest neighbour dataframe
@@ -114,8 +109,8 @@ if __name__ == '__main__':
 	word_embedding_dict = np.load('Data/word_embedding_dict.npy', allow_pickle = True)
 
 	#Perform Similarity Tasks
-	sim_ph_spearman = similarity_task(wordpairs, word_embedding_dict, "phonetic" ,sim_score = True)
-	sim_orthographic_spearman = similarity_task(wordpairs, word_embedding_dict, "orthographic", sim_score = True)
+	sim_ph_spearman = similarity_task(wordpairs_with_ser, word_embedding_dict, "phonetic" ,sim_score = True)
+	sim_orthographic_spearman = similarity_task(wordpairs_with_ser, word_embedding_dict, "orthographic", sim_score = True)
 
 	print('Similarity Tasks for NN words based on Similarity')
 	print('Phonetic Similarity %f'%(sim_ph_spearman))
@@ -123,8 +118,8 @@ if __name__ == '__main__':
 
 
 	#Perform Similarity Tasks
-	edit_ph_spearman = similarity_task(edit_distance_nn, word_embedding_dict, "phonetic", sim_score = False)
-	edit_orthographic_spearman = similarity_task(edit_distance_nn, word_embedding_dict, "orthographic", sim_score = False)
+	edit_ph_spearman = similarity_task(wordpairs_with_ser, word_embedding_dict, "phonetic", sim_score = False)
+	edit_orthographic_spearman = similarity_task(wordpairs_with_ser, word_embedding_dict, "orthographic", sim_score = False)
 
 	print('Similarity Tasks for NN words based on Edit Distance')
 	print('Phonetic Similarity %f'%(edit_ph_spearman))
