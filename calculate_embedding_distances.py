@@ -98,7 +98,7 @@ if __name__ == '__main__':
 	#Load the best model
 	#best_model_path = "./Models/awe_best_model.pth"
 	best_model_path = "/data/users/jmahapatra/models/awe_best_model.pth"
-	net.load_state_dict(torch.load(best_model_path))
+	net.load_state_dict(torch.load(best_model_path, map_location = dev))
 
 
 	print('Loading the DataFrame')
