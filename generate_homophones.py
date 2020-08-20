@@ -7,60 +7,63 @@ from generate_nearest_neighbours import swap_columns
 
 
 
-def generate_homophones():
+def generate_homophones(wordpairs_filepath = '/data/users/jmahapatra/data/wordpairs.txt',homophones_filepath = '/data/users/jmahapatra/data/homophones.txt'):
 
 	#Load the word pairs dataframe
-	wordpairs_df = pd.read_csv('/data/users/jmahapatra/data/wordpairs.txt')
-	#wordpairs_df = pd.read_csv('Data/wordpairs_test.txt', sep = ',')
+	wordpairs_df = pd.read_csv(wordpairs_filepath, sep = ',')
 
 	#Get the homophone pairs, discard the rest
-	raw_ph_homophone_df = wordpairs_df.query("raw_phonetic_edit_distance == 0")
-	filtered_ph_homophone_df = wordpairs_df.query("filtered_phonetic_edit_distance == 0")
+	homophone_df = wordpairs_df.query("phonetic_edit_distance == 0")
 	del wordpairs_df
 
 	#Get the set of words for whom homophones exist
-	raw_ph_words = set(raw_ph_homophone_df["word_1"].to_list()).union(set(raw_ph_homophone_df["word_2"].to_list()))
-	filtered_ph_words = set(filtered_ph_homophone_df["word_1"].to_list()).union(set(filtered_ph_homophone_df["word_2"].to_list()))
+	words = set(homophone_df["word_1"].to_list()).union(set(homophone_df["word_2"].to_list()))
 
-	raw_ph_homophone_dict = {}
-	raw_ph_homophone_dict["word"] = []
-	raw_ph_homophone_dict["homophone_words"] = []
+	print('Number of filtered phoneme distance homophones', len(words))
+
+	homophones_dict = {}
+	homophones_dict["word"] = []
+	homophones_dict["homophone_words"] = []
 
 
-	filtered_ph_homophone_dict = {}
-	filtered_ph_homophone_dict["word"] = []
-	filtered_ph_homophone_dict["homophone_words"] = []
+	print('Calculating Homophones')
 
-	for word in raw_ph_words:
-		query = pd.concat([raw_ph_homophone_df.query("word_1 == '%s'"%(word)),swap_columns(raw_ph_homophone_df.query("word_2 == '%s'"%(word)))])
+
+	#Create a set to keep track of already added words to the homophone_dict to avoid repetitions
+	added_words = set()
+
+	for word in words:
+
+		if word in added_words:
+			continue
+		query = pd.concat([homophone_df.query("word_1 == '%s'"%(word)),swap_columns(homophone_df.query("word_2 == '%s'"%(word)))])
 		
-		raw_ph_homophone_dict["word"].append(word)
-		raw_ph_homophone_dict["homophone_words"].append(tuple(query["word_2"].to_list()))
+		homophones_dict["word"].append(word)
+		homophones_dict["homophone_words"].append(tuple(query["word_2"].to_list()))
 
+		added_words.add(word)
+		for homophone_word in query["word_2"].to_list():
+			added_words.add(homophone_word)
 
-
-	for word in filtered_ph_words:
-		query = pd.concat([filtered_ph_homophone_df.query("word_1 == '%s'"%(word)),swap_columns(filtered_ph_homophone_df.query("word_2 == '%s'"%(word)))])
-		
-		filtered_ph_homophone_dict["word"].append(word)
-		filtered_ph_homophone_dict["homophone_words"].append(tuple(query["word_2"].to_list()))
 
 	
+	
 	#Create the DataFrames
-	raw_ph_homophone_df = pd.DataFrame(raw_ph_homophone_dict)
-	filtered_ph_homophone_df = pd.DataFrame(filtered_ph_homophone_dict)
+	homophone_df = pd.DataFrame(homophones_dict)
 
 
 	#Save the homophones
-	raw_ph_homophone_df.to_csv('/data/users/jmahapatra/data/raw_ph_homophones.txt', index = False)
-	#raw_ph_homophone_df.to_csv('Data/raw_ph_homophones.txt', index = False)
-	filtered_ph_homophone_df.to_csv('/data/users/jmahapatra/data/filtered_ph_homophones.txt', index = False)
-	#filtered_ph_homophone_df.to_csv('Data/filtered_ph_homophones.txt', index = False)
+	homophone_df.to_csv(homophones_filepath, index = False)
+
+	
 
 
-
-	print('Finished Saving homophones')
+	print('Finished Generating homophones')
+	print('--------------------------------------------------------------------------------------')
 
 if __name__ == '__main__':
 
-	generate_homophones()
+
+	wordpairs_filepath = 'Data/wordpairs_test.txt'
+	homophones_filepath = 'Data/homophones.txt'
+	generate_homophones(wordpairs_filepath,homophones_filepath)
