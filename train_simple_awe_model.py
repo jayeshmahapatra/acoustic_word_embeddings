@@ -41,7 +41,7 @@ if __name__ == '__main__':
 	num_examples = np.Inf
 
 	dh = DataHelper(load_list,num_examples)
-	dh.load_data()
+	dh.load_data(char_threshold = 5, frequency_bounds = (5,np.Inf))
 	dh.process_data()
 	c,word_to_num,num_to_word = dh.generate_key_dicts()
 
