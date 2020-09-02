@@ -29,7 +29,7 @@ class DataHelper():
 		'''Takes in matrices and keys. Filters the data by making all keys lowercase, removing words
 		with number of letters less than a threshold.'''
 
-		print('Length before filtering %d'%(len(keys)))
+		print('Length before filtering on char length %d'%(len(keys)))
 		#Lowercase all keys
 		keys = list(map(lambda x: x.translate(str.maketrans('', '', string.punctuation)).lower(),keys))
 
@@ -38,7 +38,7 @@ class DataHelper():
 
 		matrices,mat_lengths,keys = list(matrices),list(mat_lengths),list(keys)
 
-		print('Length after filtering %d'%(len(keys)))
+		print('Length after filtering on char length %d'%(len(keys)))
 
 
 		return matrices,mat_lengths,keys
@@ -46,7 +46,7 @@ class DataHelper():
 	def filter_on_character_frequency(self, matrices,mat_lengths,keys,frequency_bounds = (0,np.Inf)):
 		'''Filter words that have frequnecy less than a lower bound threshold or more than an upper bound threshold'''
 
-		print('Length before filtering %d'%(len(keys)))
+		print('Length before filtering on frequency_bounds %d'%(len(keys)))
 
 		#Create a Counter
 		c = Counter(keys)
@@ -66,7 +66,7 @@ class DataHelper():
 		matrices,mat_lengths,keys = zip(*filter(lambda x: x[2] not in remove_list, zip(matrices,mat_lengths,keys)))
 
 
-		print('Length after filtering %d'%(len(keys)))
+		print('Length after filtering on frequency_bounds %d'%(len(keys)))
 
 		return map(list,(matrices,mat_lengths,keys))
 
@@ -119,10 +119,12 @@ class DataHelper():
 			index+=1
 
 
+
+
 		print('Number of Unique words ',len(c.keys()))
 		return c,self.word_to_num,self.num_to_word
 
-	def load_data(self):
+	def load_data(self, char_threshold = 5,frequency_bounds= (0,np.Inf)):
 		'''Loads the data from the file into the data object'''
 
 		read_function = kaldi_io.read_mat_ark if self.filetype == "ark" else kaldi_io.read_mat_scp
@@ -136,7 +138,9 @@ class DataHelper():
 				if i+1 == self.num_examples:
 					break
 			#Filter the data
-			file_matrices,file_mat_lengths,file_keys = self.filter_on_character_length(file_matrices,file_mat_lengths,file_keys,char_threshold = 5)
+			file_matrices,file_mat_lengths,file_keys = self.filter_on_character_length(file_matrices,file_mat_lengths,file_keys,char_threshold = char_threshold)
+			file_matrices,file_mat_lengths,file_keys = self.filter_on_character_frequency(file_matrices,file_mat_lengths,file_keys,frequency_bounds = frequency_bounds)
+
 
 			#Add to the main list
 			self.keys.extend(file_keys)
