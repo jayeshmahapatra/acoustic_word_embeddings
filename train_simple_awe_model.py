@@ -50,6 +50,8 @@ if __name__ == '__main__':
 
 	dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
+	print('Using Device ',dev.type)
+
 	print('Splitting the data into train/val/test and creating dataloaders')
 	x_trainval,x_test,y_trainval,y_test = train_test_split(inputs, labels, test_size=0.2, random_state=32)
 	x_train,x_val,y_train,y_val = train_test_split(x_trainval,y_trainval,test_size =0.25, random_state = 32)
@@ -83,9 +85,12 @@ if __name__ == '__main__':
 	optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 	num_epochs = 150
 	#Training the model
+	
 	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="/data/users/jmahapatra/models/",verbose = True)
-	#hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/",verbose = True)
+	#hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/freq_5/",verbose = True)
+	
 	plot_learning_curves(hist,'/data/users/jmahapatra/data/learning_curves.png', show = False)
+	#plot_learning_curves(hist,'./Data/learning_curves_freq_5.png', show = False)
 
 
 
