@@ -125,14 +125,14 @@ def evaluate_model(net,test_dl, dev):
     
     embeddings = None
     labels = None
-    for xb,yb in test_dl:
+    for i,(xb,yb) in enumerate(test_dl):
         #If device is GPU move features to GPU
         if dev.type == 'cuda' and not xb.is_cuda:
             xb = xb.to(dev, non_blocking=True)
             
         #Get the embeddings
-        #batch_embeddings = net.give_embeddings(xb)
-        batch_embeddings = net(xb).cpu().detach().numpy()
+        batch_embeddings = net.give_embeddings(xb, dev)
+        #batch_embeddings = net(xb).cpu().detach().numpy()
         
         #Add to the main embeddings
         if embeddings is not None:
@@ -141,6 +141,9 @@ def evaluate_model(net,test_dl, dev):
         else:
             embeddings = batch_embeddings
             labels = yb
+
+        if i==2:
+            break
 
 
     
@@ -206,14 +209,14 @@ def evaluate_model_paper(net,evaluate_dl, dev,show_plot = True):
     
     embeddings = None
     labels = None
-    for xb,yb in evaluate_dl:
+    for i, (xb,yb) in enumerate(evaluate_dl):
         #If device is GPU move features to GPU
         if dev.type == 'cuda' and not xb.is_cuda:
             xb = xb.to(dev, non_blocking=True)
             
         #Get the embeddings
-        #batch_embeddings = net.give_embeddings(xb)
-        batch_embeddings = net(xb).cpu().detach().numpy()
+        batch_embeddings = net.give_embeddings(xb, dev)
+        #batch_embeddings = net(xb).cpu().detach().numpy()
         
         #Add to the main embeddings
         if embeddings is not None:
@@ -222,6 +225,9 @@ def evaluate_model_paper(net,evaluate_dl, dev,show_plot = True):
         else:
             embeddings = batch_embeddings
             labels = yb
+
+        if i==2:
+            break
 
 
     print('Finished getting %d embeddings'%(embeddings.shape[0]))

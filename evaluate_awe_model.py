@@ -35,8 +35,8 @@ from train_test_helpers import accuracy,train_model,evaluate_model,evaluate_mode
 if __name__ == '__main__':
 
 	print('Loading the Data')
-	load_list = ['/data/users/jmahapatra/data/feats_cmvn.ark']
-	#load_list = ['Data/feats_cmvn.ark']
+	#load_list = ['/data/users/jmahapatra/data/feats_cmvn.ark']
+	load_list = ['Data/feats_cmvn.ark']
 	num_examples = np.Inf
 
 	dh = DataHelper(load_list,num_examples)
@@ -52,13 +52,12 @@ if __name__ == '__main__':
 	print('Splitting the data into train/val/test and creating dataloaders')
 	x_trainval,x_test,y_trainval,y_test = train_test_split(inputs, labels, test_size=0.2, random_state=32)
 
-	del x_trainval,y_trainval
+	
 
 	x_test,y_test = torch.tensor(x_test, dtype= torch.float),torch.tensor(y_test, dtype= torch.float)
-	print(x_train.shape,y_train.shape)
-	print(x_val.shape,y_val.shape)
 	print(x_test.shape,y_test.shape)
 
+	del x_trainval,y_trainval
 
 	del inputs,labels
 
@@ -79,9 +78,7 @@ if __name__ == '__main__':
 	net.load_state_dict(torch.load(best_model_path))
 	evaluate_dl = DataLoader(test_ds, batch_size=1024, pin_memory = True, drop_last = False)
 	average_precision = evaluate_model(net,evaluate_dl,dev)
-
-	print(average_precision)
-
+	avg_p_paper = evaluate_model_paper(net,evaluate_dl,dev, False)
 
 
 

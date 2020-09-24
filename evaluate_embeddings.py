@@ -58,7 +58,7 @@ def homophone_task(homophones, word_phoneme_dict):
 
 		homophone_words = list(filter(lambda x: x.isalpha(), homophone_query["homophone_words"].item().split(",")))
 		#awe_nn_words = list(awe_nn_words_query["neighbours"].item().split(","))[:len(homophone_words)]
-		awe_nn_words = list(awe_nn_words_query["neighbours"].item().split(","))[:2]
+		awe_nn_words = list(awe_nn_words_query["neighbours"].item().split(","))[:10]
 
 		#print(awe_nn_words)
 
@@ -115,7 +115,7 @@ if __name__ == '__main__':
 
 	#Load the embedding nearest neighbour dataframe
 	#em_cosine_nn = pd.read_csv('/data/users/jmahapatra/data/em_nearest_neighbours_cosine.txt')
-	em_cosine_nn = pd.read_csv('Data/em_nearest_neighbours_cosine.txt')
+	em_cosine_nn = pd.read_csv('Data/em_nearest_neighbours_cosine_freq_5.txt')
 
 
 
@@ -125,7 +125,7 @@ if __name__ == '__main__':
 
 	#Load the word embedding dict
 	#word_embedding_dict = np.load('/data/users/jmahapatra/data/word_embedding_dict.npy', allow_pickle = True)
-	word_embedding_dict = np.load('Data/word_embedding_dict.npy', allow_pickle = True)
+	word_embedding_dict = np.load('Data/word_embedding_dict_freq_5.npy', allow_pickle = True)
 
 
 	word_phoneme_dict = np.load('Data/word_phoneme_dict.npy', allow_pickle = True)

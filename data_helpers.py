@@ -139,13 +139,14 @@ class DataHelper():
 					break
 			#Filter the data
 			file_matrices,file_mat_lengths,file_keys = self.filter_on_character_length(file_matrices,file_mat_lengths,file_keys,char_threshold = char_threshold)
-			file_matrices,file_mat_lengths,file_keys = self.filter_on_character_frequency(file_matrices,file_mat_lengths,file_keys,frequency_bounds = frequency_bounds)
 
 
 			#Add to the main list
 			self.keys.extend(file_keys)
 			self.matrices.extend(file_matrices)
 			self.mat_lengths.extend(file_mat_lengths)
+
+		self.matrices,self.mat_lengths,self.keys = self.filter_on_character_frequency(self.matrices,self.mat_lengths,self.keys,frequency_bounds = frequency_bounds)
 
 		print('Finished Loading the Data, %d examples'%(len(self.keys)))
 

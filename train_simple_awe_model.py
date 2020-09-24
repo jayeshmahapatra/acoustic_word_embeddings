@@ -36,12 +36,12 @@ from train_test_helpers import accuracy,train_model,evaluate_model,evaluate_mode
 if __name__ == '__main__':
 
 	print('Loading the Data')
-	load_list = ['/data/users/jmahapatra/data/feats_cmvn.ark']
-	#load_list = ['Data/feats_cmvn.ark']
+	#load_list = ['/data/users/jmahapatra/data/feats_cmvn.ark']
+	load_list = ['Data/feats_cmvn.ark']
 	num_examples = np.Inf
 
 	dh = DataHelper(load_list,num_examples)
-	dh.load_data(char_threshold = 5, frequency_bounds = (5,np.Inf))
+	dh.load_data(char_threshold = 5, frequency_bounds = (0,np.Inf))
 	dh.process_data()
 	c,word_to_num,num_to_word = dh.generate_key_dicts()
 
@@ -65,13 +65,13 @@ if __name__ == '__main__':
 
 	bs = 64
 	train_ds = TensorDataset(x_train, y_train)
-	train_dl = DataLoader(train_ds, batch_size=bs, pin_memory = True, drop_last = True)
+	train_dl = DataLoader(train_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 
 	val_ds = TensorDataset(x_val, y_val)
-	val_dl = DataLoader(val_ds, batch_size=bs, pin_memory = True, drop_last = True)
+	val_dl = DataLoader(val_ds, batch_size=bs, pin_memory = True, shuffle = True,, drop_last = True)
 
-	test_ds = TensorDataset(x_test, y_test)
-	test_dl = DataLoader(test_ds, batch_size=bs, pin_memory = True, drop_last = True)
+	#test_ds = TensorDataset(x_test, y_test)
+	#test_dl = DataLoader(test_ds, batch_size=bs, pin_memory = True, shuffle = True,, drop_last = True)
 
 	print('Creating the Neural Net')
 
@@ -80,17 +80,18 @@ if __name__ == '__main__':
 	net = net.float()
 	net.to(dev)
 
+
 	#Defining training criterion
 	criterion = nn.NLLLoss()
 	optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 	num_epochs = 150
 	#Training the model
 	
-	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="/data/users/jmahapatra/models/",verbose = True)
-	#hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/freq_5/",verbose = True)
+	#hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="/data/users/jmahapatra/models/",verbose = True)
+	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/diff_pool/",verbose = True)
 	
-	plot_learning_curves(hist,'/data/users/jmahapatra/data/learning_curves.png', show = False)
-	#plot_learning_curves(hist,'./Data/learning_curves_freq_5.png', show = False)
+	#plot_learning_curves(hist,'/data/users/jmahapatra/data/learning_curves.png', show = False)
+	plot_learning_curves(hist,'./Data/learning_curves_freq_5.png', show = False)
 
 
 
