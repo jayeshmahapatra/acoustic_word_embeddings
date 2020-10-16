@@ -2,9 +2,16 @@ from data_helpers import DataHelper
 import numpy as np
 import pandas as pd
 
-#User defined libraries
-from generate_nearest_neighbours import swap_columns
 
+def swap_columns(query):
+	#Swap columns
+	initial_cols = list(query)
+	cols = list(query)
+	cols.insert(0, cols.pop(cols.index('word_2')))
+	query = query.loc[:, cols]
+	#Change column names
+	query.columns = initial_cols
+	return query
 
 
 def generate_homophones(wordpairs_filepath = '/data/users/jmahapatra/data/wordpairs.txt',homophones_filepath = '/data/users/jmahapatra/data/homophones.txt'):
