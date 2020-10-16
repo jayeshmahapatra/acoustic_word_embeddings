@@ -3,14 +3,11 @@ from datetime import datetime
 
 
 #BigPhoney
-#from big_phoney import BigPhoney
+from big_phoney import BigPhoney
 
 #User defined libraries
-from generate_word_pairs import filter_alphabets, generate_pairs
-from embedding_distance import generate_embedding_similarity
-from generate_homophones import generate_homophones
 
-from add_ser import add_ser_and_cosine_similarity
+from dataframe_methods import filter_alphabets, generate_pairs, generate_embedding_similarity, generate_homophones
 
 
 def show_time():
