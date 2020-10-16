@@ -43,7 +43,7 @@ class DataHelper():
 
 		return matrices,mat_lengths,keys
 
-	def filter_on_character_frequency(self, matrices,mat_lengths,keys,frequency_bounds = (0,np.Inf)):
+	def filter_on_frequency_bounds(self, matrices,mat_lengths,keys,frequency_bounds = (0,np.Inf)):
 		'''Filter words that have frequnecy less than a lower bound threshold or more than an upper bound threshold'''
 
 		print('Length before filtering on frequency_bounds %d'%(len(keys)))
@@ -146,7 +146,7 @@ class DataHelper():
 			self.matrices.extend(file_matrices)
 			self.mat_lengths.extend(file_mat_lengths)
 
-		self.matrices,self.mat_lengths,self.keys = self.filter_on_character_frequency(self.matrices,self.mat_lengths,self.keys,frequency_bounds = frequency_bounds)
+		self.matrices,self.mat_lengths,self.keys = self.filter_on_frequency_bounds(self.matrices,self.mat_lengths,self.keys,frequency_bounds = frequency_bounds)
 
 		print('Finished Loading the Data, %d examples'%(len(self.keys)))
 

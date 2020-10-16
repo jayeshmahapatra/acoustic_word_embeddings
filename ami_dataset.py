@@ -1,6 +1,7 @@
 #Core Python, Pandas, and kaldi_io
 import numpy as np
 import pandas as pd
+import random
 import string
 from collections import Counter
 import random
@@ -15,8 +16,9 @@ import torch.optim as optim
 from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 #scikit-learn
 from sklearn.model_selection import train_test_split
+from sklearn.utils import shuffle
 
-class SiameseTriplets(torch.utils.data.Dataset):
+class AMI_dataset(torch.utils.data.Dataset):
 	'''Dataset that on each iteration provides a triplet pair of acosutic segments, out of which
 	two belong to the same word, and one belongs to a different word.'''
 	
@@ -46,72 +48,34 @@ class SiameseTriplets(torch.utils.data.Dataset):
 		self._pad_and_truncate_data()
 		self._generate_key_dicts()
 		self._generate_inputs_and_labels()
-		self._generate_data_class()
 
-		#Number of Classes (unique labels)
-		num_classes = len(self.data_class.keys())
+		#Shuffle the array
+		self.inputs,self.labels = shuffle(self.inputs,self.labels, random_state = 3)
 
-		self.triplets = []
-		self.triplets_labels = []
-
-		#Create Triplets
-		for i,word_num in enumerate(self.data_class.keys()):
-			#Generate 5 examples per training class
-			for j in range(self.examples_per_class):
-
-				#Pick a random word other than the current word
-				rnd_cls = random.randint(0,num_classes-2)
-
-				if rnd_cls >=i:
-					rnd_cls += 1
-
-				#The random word_num
-				rnd_word_num = list(self.data_class.keys())[rnd_cls]
-
-				#Pick a random sample other than j for the same class
-				if self.data_class[word_num].shape[0]-2 >0 :
-					sample_same_cls = random.randint(0,self.data_class[word_num].shape[0]-2)
-					if sample_same_cls >= j:
-						sample_same_cls += 1
-				else:
-					sample_same_cls = (j%self.data_class[word_num].shape[0] + 1)%self.data_class[word_num].shape[0]
-
-				#Pick a random sample for the different class
-				sample_diff_cls = random.randint(0,self.data_class[rnd_word_num].shape[0]-1)
-
-
-				#Append the triplet
-				self.triplets.append(torch.stack([self.data_class[word_num][j%self.data_class[word_num].shape[0]],self.data_class[word_num][sample_same_cls],self.data_class[rnd_word_num][sample_diff_cls]]))
-				self.triplets_labels.append([word_num,rnd_word_num])
-
-		self.triplets = torch.stack(self.triplets).cpu()
-		self.triplets_labels = torch.tensor(self.triplets_labels).cpu()
-
-		#Split based on dataset type
-		x_trainval,x_test,y_trainval,y_test = train_test_split(self.triplets, self.triplets_labels, test_size=0.2, random_state=32)
+		x_trainval,x_test,y_trainval,y_test = train_test_split(self.inputs, self.labels, test_size=0.2, random_state=32)
 		x_train,x_val,y_train,y_val = train_test_split(x_trainval,y_trainval,test_size =0.25, random_state = 32)
 
-		#x_train,y_train = torch.tensor(x_train,dtype= torch.float),torch.tensor(y_train, dtype= torch.float)
-		#x_val,y_val = torch.tensor(x_val, dtype= torch.float),torch.tensor(y_val, dtype= torch.float)
-		#x_test,y_test = torch.tensor(x_test, dtype= torch.float),torch.tensor(y_test, dtype= torch.float)
+		x_train,y_train = torch.tensor(x_train,dtype= torch.float),torch.tensor(y_train, dtype= torch.float)
+		x_val,y_val = torch.tensor(x_val, dtype= torch.float),torch.tensor(y_val, dtype= torch.float)
+		x_test,y_test = torch.tensor(x_test, dtype= torch.float),torch.tensor(y_test, dtype= torch.float)
 
+		#Split the dataset
 		if self.split_set == "train":
-			self.triplets,self.triplets_labels = x_train,y_train
+			self.inputs,self.labels = x_train,y_train
 		elif self.split_set == "val":
-			self.triplets,self.triplets_labels = x_val,y_val
+			self.inputs,self.labels = x_val,y_val
 		else:
-			self.triplets,self.triplets_labels = x_test,y_test
+			self.inputs,self.labels = x_test,y_test
 
-		del self.data_class
-		print(self.triplets.shape)
+
 		
 	def __getitem__(self, index):
 		
-		return self.triplets[index],self.triplets_labels[index]
+		return self.inputs[index],self.labels[index]
 		
 	def __len__(self):
 		
-		return self.triplets.shape[0]
+		return self.inputs.shape[0]
 		
 	
 	
@@ -143,6 +107,8 @@ class SiameseTriplets(torch.utils.data.Dataset):
 
 		self.keys,self.matrices = self._filter_on_frequency_bounds(self.keys,self.matrices,frequency_bounds = self.frequency_bounds)
 
+
+
 		print('Finished Loading the Data, %d examples'%(len(self.keys)))
 
 	def _pad_and_truncate_data(self):
@@ -171,7 +137,7 @@ class SiameseTriplets(torch.utils.data.Dataset):
 		self.labels = labels
 		
 		#Delete other datastructures to free memory
-		del self.keys,self.matrices
+		#del self.keys,self.matrices
 		
 		return None
 	
@@ -213,10 +179,9 @@ class SiameseTriplets(torch.utils.data.Dataset):
 	# Function to truncate and limit dimensionality
 	def _truncate_shapes(self,matrices,max_length = 100,num_mfcc_features = 40):
 
-		
+		mat_lengths = []
 		for i, seq in enumerate(matrices):
 			matrices[i] = matrices[i][:max_length, :num_mfcc_features]
-			
 
 		return matrices
 

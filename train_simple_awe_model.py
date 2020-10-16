@@ -31,11 +31,12 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 from data_helpers import DataHelper
 from models import SimpleNet
 from train_test_helpers import accuracy,train_model,evaluate_model,evaluate_model_paper,test_model,plot_learning_curves
-
+from ami_dataset import AMI_dataset
 
 if __name__ == '__main__':
 
 	print('Loading the Data')
+	'''
 	#load_list = ['/data/users/jmahapatra/data/feats_cmvn.ark']
 	load_list = ['Data/feats_cmvn.ark']
 	num_examples = np.Inf
@@ -47,10 +48,13 @@ if __name__ == '__main__':
 
 	inputs,labels = dh.give_inputs_and_labels()
 	del dh
+	'''
 
 	dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 	print('Using Device ',dev.type)
+
+	'''
 
 	print('Splitting the data into train/val/test and creating dataloaders')
 	x_trainval,x_test,y_trainval,y_test = train_test_split(inputs, labels, test_size=0.2, random_state=32)
@@ -63,19 +67,22 @@ if __name__ == '__main__':
 	print(x_val.shape,y_val.shape)
 	print(x_test.shape,y_test.shape)
 
+	'''
+
 	bs = 64
-	train_ds = TensorDataset(x_train, y_train)
+	num_examples = np.Inf
+	train_ds = AMI_dataset(num_examples = num_examples, split_set = "train", data_filepath = "Data/feats_cmvn.ark", char_threshold = 5, frequency_bounds = (0,np.Inf))
 	train_dl = DataLoader(train_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 
-	val_ds = TensorDataset(x_val, y_val)
-	val_dl = DataLoader(val_ds, batch_size=bs, pin_memory = True, shuffle = True,, drop_last = True)
+	val_ds = AMI_dataset(num_examples = num_examples, split_set = "val", data_filepath = "Data/feats_cmvn.ark", char_threshold = 5, frequency_bounds = (0,np.Inf))
+	val_dl = DataLoader(val_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 
 	#test_ds = TensorDataset(x_test, y_test)
-	#test_dl = DataLoader(test_ds, batch_size=bs, pin_memory = True, shuffle = True,, drop_last = True)
+	#test_dl = DataLoader(test_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 
 	print('Creating the Neural Net')
 
-	num_output = len(c.keys())
+	num_output = len(train_ds.c.keys())
 	net = SimpleNet(num_output)
 	net = net.float()
 	net.to(dev)
@@ -88,10 +95,10 @@ if __name__ == '__main__':
 	#Training the model
 	
 	#hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="/data/users/jmahapatra/models/",verbose = True)
-	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/diff_pool/",verbose = True)
+	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/test/",verbose = True)
 	
 	#plot_learning_curves(hist,'/data/users/jmahapatra/data/learning_curves.png', show = False)
-	plot_learning_curves(hist,'./Data/learning_curves_freq_5.png', show = False)
+	plot_learning_curves(hist,'./Data/learning_curves.png', show = False)
 
 
 

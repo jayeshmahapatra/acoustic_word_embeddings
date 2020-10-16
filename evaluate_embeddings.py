@@ -17,30 +17,15 @@ def alphabet_commas(string):
 	
 	return ''.join(e for e in string if (e.isalpha() or e == ","))
 
-def sim_score(ser):
-	return 10 - min(10,ser/10)
 
 def similarity_task(wordpairs,word_embedding_dict,column_name = "phonetic", use_sim_score = True):
 	'''Function to return spearmans rank coefficient between similarity score/symbol error rate and cosine similarity/distance of word pairs'''
 
+	rho_1,p_value_1 = stats.spearmanr(wordpairs["word_1_%s_ser"%(column_name)].to_list(),wordpairs["cosine_similarity"].apply(lambda x: 1-x).to_list())
+	rho_2,p_value_2 = stats.spearmanr(wordpairs["word_2_%s_ser"%(column_name)].to_list(),wordpairs["cosine_similarity"].apply(lambda x: 1-x).to_list())
 
-	if use_sim_score == True:
-		#Create the ranked sim_score
-		rho_1,p_value_1 = stats.spearmanr(wordpairs["word_1_%s_ser"%(column_name)].apply(lambda x: sim_score(100*x)).to_list(),wordpairs["cosine_similarity"].to_list())
-		rho_2,p_value_2 = stats.spearmanr(wordpairs["word_2_%s_ser"%(column_name)].apply(lambda x: sim_score(100*x)).to_list(),wordpairs["cosine_similarity"].to_list())
-		#rho_1,p_value_1 = stats.spearmanr(wordpairs["%s_edit_distance"%(column_name)].apply(lambda x: sim_score(100*x)).to_list(),wordpairs["cosine_similarity"].to_list())
-
-	else:
-		rho_1,p_value_1 = stats.spearmanr(wordpairs["word_1_%s_ser"%(column_name)].to_list(),wordpairs["cosine_similarity"].apply(lambda x: 1-x).to_list())
-		rho_2,p_value_2 = stats.spearmanr(wordpairs["word_2_%s_ser"%(column_name)].to_list(),wordpairs["cosine_similarity"].apply(lambda x: 1-x).to_list())
-		#rho_1,p_value_1 = stats.spearmanr(wordpairs["word_1_%s_ser"%(column_name)].to_list(),wordpairs["cosine_similarity"].apply(lambda x: 1-x).to_list())
-		#rho_2,p_value_2 = stats.spearmanr(wordpairs["word_2_%s_ser"%(column_name)].to_list(),wordpairs["cosine_similarity"].apply(lambda x: 1-x).to_list())
-		
-
-
-
-	
 	return (rho_1+rho_2)/2
+	
 
 def homophone_task(homophones, word_phoneme_dict):
 	words = set(homophones["word"].to_list())
@@ -130,22 +115,13 @@ if __name__ == '__main__':
 
 	word_phoneme_dict = np.load('Data/word_phoneme_dict.npy', allow_pickle = True)
 	'''
-	#Perform Similarity Tasks
-	sim_ph_spearman = similarity_task(wordpairs_with_ser, word_embedding_dict, "phonetic" ,use_sim_score = True)
-	sim_orthographic_spearman = similarity_task(wordpairs_with_ser, word_embedding_dict, "orthographic", use_sim_score = True)
-
-	print('Similarity Tasks for NN words based on Similarity')
-	print('Phonetic Similarity %f'%(sim_ph_spearman))
-	print('Orthographic Similarity %f'%(sim_orthographic_spearman))
 
 
 	#Perform Similarity Tasks
-	edit_ph_spearman = similarity_task(wordpairs_with_ser, word_embedding_dict, "phonetic", use_sim_score = False)
-	edit_orthographic_spearman = similarity_task(wordpairs_with_ser, word_embedding_dict, "orthographic", use_sim_score = False)
+	edit_ph_spearman = similarity_task(wordpairs_with_ser, word_embedding_dict, "phonetic")
 
 	print('Similarity Tasks for NN words based on Edit Distance')
 	print('Phonetic Similarity %f'%(edit_ph_spearman))
-	print('Orthographic Similarity %f'%(edit_orthographic_spearman))
 	'''
 
 	avg_precision = homophone_task(homophones, word_phoneme_dict)

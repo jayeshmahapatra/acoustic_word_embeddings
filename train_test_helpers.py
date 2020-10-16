@@ -121,7 +121,7 @@ def train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path
     return hist
 
 
-def evaluate_model(net,test_dl, dev):
+def evaluate_model(net,test_dl, dev, num_examples = 11000):
     
     embeddings = None
     labels = None
@@ -142,11 +142,14 @@ def evaluate_model(net,test_dl, dev):
             embeddings = batch_embeddings
             labels = yb
 
-        if i==2:
+        if embeddings.shape[0]>num_examples:
             break
+    embeddings = embeddings[:num_examples]
+    labels = labels[:num_examples]
 
+    print("Size of labels %d"%(labels.shape[0]))
+    print("Number of unique words %d"%(np.unique(labels).shape[0]))
 
-    
     #Calculate pairwise cosine distance
     distances = pairwise_distances(embeddings, metric='cosine')
     #Calculate pairwise cosine similarity
