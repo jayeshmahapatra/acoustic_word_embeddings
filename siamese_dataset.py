@@ -185,28 +185,6 @@ class SiameseTriplets(torch.utils.data.Dataset):
 
 		del self.inputs,self.labels
 
-	def _pick_data_class(self):
-
-
-		#Split the numbers into train, val and test
-		words = list(self.num_to_word.keys())
-		trainval,test = train_test_split(words, test_size=0.2, random_state=32)
-		train,val = train_test_split(trainval, test_size=0.25, random_state=32) 
-
-		print(list(map(len,[train,val,test])))
-
-
-		if self.split_set == "train":
-			del_list = val + test
-		elif self.split_set == "val":
-			del_list = train + test
-		else:
-			del_list = train + val
-
-		for key in (del_list):
-				del self.data_class[key]
-
-		print("For %sset number of unique words are %d"%(self.split_set,len(self.data_class.keys())))
 
 			
 	

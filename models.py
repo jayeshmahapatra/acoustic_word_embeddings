@@ -82,4 +82,31 @@ class SiameseNet(nn.Module):
         x = F.relu(self.fc1(x))
         return x.cpu().detach().numpy() if dev.type == 'cuda' else x.detach().numpy()
 
+class OrthographicNet(nn.Module):
+    def __init__(self,num_input,num_output):
+        super(OrthographicNet, self).__init__()
+        self.fc1 = nn.Linear(num_input, 1024)
+        self.fc2 = nn.Linear(1024, 1024)
+        self.fc2 = nn.Linear(1024, 1024)
+        self.fc3 = nn.Linear(1024, num_output)
+    
+    def forward(self, x):
+        x = F.relu(self.fc1(x))
+        #print(x.shape)
+        x = F.relu(self.fc2(x))
+        #print(x.shape)
+        x = F.relu(self.fc3(x))
+        #print(x.shape)
+        return x
+    
+    def give_embeddings(self,x,dev):
+        x = F.relu(self.fc1(x))
+        #print(x.shape)
+        x = F.relu(self.fc2(x))
+        #print(x.shape)
+        x = F.relu(self.fc3(x))
+        #print(x.shape)
+        #print("Done")
+        return x.cpu().detach().numpy() if dev.type == 'cuda' else x.detach().numpy()
+
 

@@ -18,7 +18,7 @@ def alphabet_commas(string):
 	return ''.join(e for e in string if (e.isalpha() or e == ","))
 
 
-def similarity_task(wordpairs,word_embedding_dict,column_name = "phonetic", use_sim_score = True):
+def similarity_task(wordpairs):
 	'''Function to return spearmans rank coefficient between similarity score/symbol error rate and cosine similarity/distance of word pairs'''
 
 	rho_1,p_value_1 = stats.spearmanr(wordpairs["word_1_%s_ser"%(column_name)].to_list(),wordpairs["cosine_similarity"].apply(lambda x: 1-x).to_list())
@@ -42,8 +42,7 @@ def homophone_task(homophones, word_phoneme_dict):
 		awe_nn_words_query = em_cosine_nn.query("word == '%s'"%(word))
 
 		homophone_words = list(filter(lambda x: x.isalpha(), homophone_query["homophone_words"].item().split(",")))
-		#awe_nn_words = list(awe_nn_words_query["neighbours"].item().split(","))[:len(homophone_words)]
-		awe_nn_words = list(awe_nn_words_query["neighbours"].item().split(","))[:10]
+		awe_nn_words = list(awe_nn_words_query["neighbours"].item().split(","))[:len(homophone_words)]
 
 		#print(awe_nn_words)
 
