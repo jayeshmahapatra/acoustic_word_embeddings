@@ -98,11 +98,9 @@ class AMI_dataset(torch.utils.data.Dataset):
 			keyword_to_key[row.keyword] = row.key
 
 
-		read_function = kaldi_io.read_mat_scp
-
 		for load_file in self.load_list:
 			file_keys,file_matrices,file_mat_lengths = [],[],[]
-			for i,(keyword,matrix) in enumerate(kaldi_io.read_mat_ark(load_file)):
+			for i,(keyword,matrix) in enumerate(kaldi_io.read_mat_scp(load_file)):
 				#file_keys.append(key.split('_')[1])
 				file_keys.append(keyword_to_key[keyword])
 				file_matrices.append(matrix)

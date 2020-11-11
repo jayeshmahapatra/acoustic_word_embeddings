@@ -92,7 +92,7 @@ if __name__ == '__main__':
 	#Defining training criterion
 	criterion = nn.NLLLoss()
 	optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-	num_epochs = 4
+	num_epochs = 2
 	#Training the model
 	
 	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="/data/users/jmahapatra/models/",verbose = True)
