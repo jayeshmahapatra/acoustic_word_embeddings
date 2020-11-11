@@ -71,10 +71,11 @@ if __name__ == '__main__':
 
 	bs = 64
 	num_examples = np.Inf
-	train_ds = AMI_dataset(num_examples = num_examples, split_set = "train", data_filepath = "Data/feats_cmvn.ark", char_threshold = 5, frequency_bounds = (0,np.Inf))
+	data_filepath = "/nethome/achingacham/apiai/data/AMI_Noisy/feats.scp"
+	train_ds = AMI_dataset(num_examples = num_examples, split_set = "train", data_filepath = data_filepath, char_threshold = 5, frequency_bounds = (0,np.Inf))
 	train_dl = DataLoader(train_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 
-	val_ds = AMI_dataset(num_examples = num_examples, split_set = "val", data_filepath = "Data/feats_cmvn.ark", char_threshold = 5, frequency_bounds = (0,np.Inf))
+	val_ds = AMI_dataset(num_examples = num_examples, split_set = "val", data_filepath = data_filepath, char_threshold = 5, frequency_bounds = (0,np.Inf))
 	val_dl = DataLoader(val_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 
 	#test_ds = TensorDataset(x_test, y_test)
@@ -91,11 +92,11 @@ if __name__ == '__main__':
 	#Defining training criterion
 	criterion = nn.NLLLoss()
 	optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-	num_epochs = 150
+	num_epochs = 4
 	#Training the model
 	
-	#hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="/data/users/jmahapatra/models/",verbose = True)
-	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/test/",verbose = True)
+	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="/data/users/jmahapatra/models/",verbose = True)
+	#hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/test/",verbose = True)
 	
 	#plot_learning_curves(hist,'/data/users/jmahapatra/data/learning_curves.png', show = False)
 	plot_learning_curves(hist,'./Data/learning_curves.png', show = False)

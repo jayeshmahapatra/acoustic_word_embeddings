@@ -85,13 +85,26 @@ class AMI_dataset(torch.utils.data.Dataset):
 	def _load_data(self):
 		'''Loads the data from the file into the data object'''
 		
-		filetype = self.load_list[0].split(".")[-1] 
-		read_function = kaldi_io.read_mat_ark if filetype == "ark" else kaldi_io.read_mat_scp
+		#filetype = self.load_list[0].split(".")[-1] 
+		#read_function = kaldi_io.read_mat_ark if filetype == "ark" else kaldi_io.read_mat_scp
+
+
+		#Create the keyword to word dict
+		keywords_df = pd.read_csv("/nethome/achingacham/apiai/data/AMI_Noisy/text", sep = " ", header = None)
+		keywords_df.columns = ["keyword", "key"]
+		keyword_to_key = {}
+
+		for row in keywords_df.itertuples():
+			keyword_to_key[row.keyword] = row.key
+
+
+		read_function = kaldi_io.read_mat_scp
 
 		for load_file in self.load_list:
 			file_keys,file_matrices,file_mat_lengths = [],[],[]
-			for i,(key,matrix) in enumerate(kaldi_io.read_mat_ark(load_file)):
-				file_keys.append(key.split('_')[1])
+			for i,(keyword,matrix) in enumerate(kaldi_io.read_mat_ark(load_file)):
+				#file_keys.append(key.split('_')[1])
+				file_keys.append(keyword_to_key[keyword])
 				file_matrices.append(matrix)
 				file_mat_lengths.append(matrix.shape[0])
 				if i+1 == self.num_examples:
