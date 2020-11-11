@@ -91,15 +91,16 @@ if __name__ == '__main__':
 
 	#Defining training criterion
 	criterion = nn.NLLLoss()
-	optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-	num_epochs = 2
+	#optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+	optimizer = optim.Adam(net.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False)
+	num_epochs = 150
 	#Training the model
 	
 	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="/data/users/jmahapatra/models/",verbose = True)
 	#hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/test/",verbose = True)
 	
-	#plot_learning_curves(hist,'/data/users/jmahapatra/data/learning_curves.png', show = False)
-	plot_learning_curves(hist,'./Data/learning_curves.png', show = False)
+	plot_learning_curves(hist,'/data/users/jmahapatra/data/learning_curves.png', show = False)
+	#plot_learning_curves(hist,'./Data/learning_curves.png', show = False)
 
 
 
