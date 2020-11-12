@@ -98,10 +98,14 @@ class AMI_dataset(torch.utils.data.Dataset):
 			keyword_to_key[row.keyword] = row.key
 
 
+		keyword_ignore_list = ["TS3009c","EN2002a","EN2002c","EN2003a"]
+
 		for load_file in self.load_list:
 			file_keys,file_matrices,file_mat_lengths = [],[],[]
 			for i,(keyword,matrix) in enumerate(kaldi_io.read_mat_scp(load_file)):
 				#file_keys.append(key.split('_')[1])
+				if keyword.split(".")[0] in keyword_ignore_list:
+					continue
 				file_keys.append(keyword_to_key[keyword])
 				file_matrices.append(matrix)
 				file_mat_lengths.append(matrix.shape[0])
