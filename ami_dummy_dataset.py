@@ -257,7 +257,7 @@ class AMI_dataset(torch.utils.data.Dataset):
 
 		return keys,matrices
 
-	def _keep_to_n_frequent_keys(self,n,keys,matrices):
+	def _keep_to_n_frequent_keys(self,keys,matrices,n):
 		'''Keeps only the top n most frequent words'''
 
 		c = Counter(keys)
