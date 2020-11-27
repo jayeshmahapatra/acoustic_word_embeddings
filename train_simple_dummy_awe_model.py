@@ -99,7 +99,7 @@ if __name__ == '__main__':
 	num_epochs = 150
 	#Training the model
 	
-	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="/data/users/jmahapatra/models/",verbose = True)
+	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="/data/users/jmahapatra/models/dummy_noisy/",verbose = True)
 	#hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/test/",verbose = True)
 	
 	plot_learning_curves(hist,'/data/users/jmahapatra/data/learning_curves.png', show = False)

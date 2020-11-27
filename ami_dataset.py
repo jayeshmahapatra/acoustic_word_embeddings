@@ -45,18 +45,19 @@ class AMI_dataset(torch.utils.data.Dataset):
 
 		#Load and Process the data
 		#Load the clean speech data and generate key dicts
-		self._load_clean_data()
-		self._pad_and_truncate_data()
-		self._generate_key_dicts()
-		self._generate_inputs_and_labels()
+		#self._load_clean_data()
+		#self._pad_and_truncate_data()
+		#self._generate_key_dicts()
+		#self._generate_inputs_and_labels()
 
 		#Reset the data (only keep the dicts)
 		#self._reset_loaded_data()
 
 		#Load noisy data
-		#self._load_noisy_data()
-		#self._pad_and_truncate_data()
-		#self._generate_inputs_and_labels()
+		self._load_noisy_data()
+		self._pad_and_truncate_data()
+		self._generate_key_dicts()
+		self._generate_inputs_and_labels()
 
 
 		#Shuffle the array
