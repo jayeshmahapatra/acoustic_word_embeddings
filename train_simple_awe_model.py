@@ -83,7 +83,7 @@ if __name__ == '__main__':
 
 	print('Creating the Neural Net')
 
-	num_output = len(train_ds.c.keys())
+	num_output = len(train_ds.word_to_num.keys())
 	net = SimpleNet(num_output)
 	net = net.float()
 	net.to(dev)

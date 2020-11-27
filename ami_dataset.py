@@ -44,10 +44,19 @@ class AMI_dataset(torch.utils.data.Dataset):
 		self.examples_per_class = 10
 
 		#Load and Process the data
-		self._load_data()
+		#Load the clean speech data and generate key dicts
+		self._load_clean_data()
 		self._pad_and_truncate_data()
 		self._generate_key_dicts()
+
+		#Reset the data (only keep the dicts)
+		self._reset_loaded_data()
+
+		#Load noisy data
+		self._load_noisy_data()
+		self._pad_and_truncate_data()
 		self._generate_inputs_and_labels()
+
 
 		#Shuffle the array
 		self.inputs,self.labels = shuffle(self.inputs,self.labels, random_state = 3)
@@ -59,6 +68,9 @@ class AMI_dataset(torch.utils.data.Dataset):
 		x_val,y_val = torch.tensor(x_val, dtype= torch.float),torch.tensor(y_val, dtype= torch.float)
 		x_test,y_test = torch.tensor(x_test, dtype= torch.float),torch.tensor(y_test, dtype= torch.float)
 
+
+		print(x_train.shape,x_val.shape,x_test.shape)
+		
 		#Split the dataset
 		if self.split_set == "train":
 			self.inputs,self.labels = x_train,y_train
@@ -82,7 +94,48 @@ class AMI_dataset(torch.utils.data.Dataset):
 	
 	
 	################################## Helper Functions #####################################################################
-	def _load_data(self):
+	def _reset_loaded_data(self):
+		'''Removes the loaded data from the dataset'''
+		self.keys = []
+		self.matrices = []
+		self.mat_lengths = []
+
+
+	def _load_clean_data(self):
+		'''Loads the data from the file into the data object'''
+		
+		#filetype = self.load_list[0].split(".")[-1] 
+		#read_function = kaldi_io.read_mat_ark if filetype == "ark" else kaldi_io.read_mat_scp
+
+		clean_data_load_list = ['/data/users/jmahapatra/data/feats_cmvn.ark']
+
+		for load_file in clean_data_load_list:
+			file_keys,file_matrices,file_mat_lengths = [],[],[]
+			for i,(key,matrix) in enumerate(kaldi_io.read_mat_ark(load_file)):
+				file_keys.append(key.split('_')[1])
+				file_matrices.append(matrix)
+				file_mat_lengths.append(matrix.shape[0])
+				if i+1 == self.num_examples:
+					break
+			#Filter the data
+			file_keys,file_matrices = self._filter_on_character_length(file_keys,file_matrices ,char_threshold = self.char_threshold)
+
+
+			#Add to the main list
+			self.keys.extend(file_keys)
+			self.matrices.extend(file_matrices)
+			self.mat_lengths.extend(file_mat_lengths)
+
+		self.keys,self.matrices = self._filter_on_frequency_bounds(self.keys,self.matrices,frequency_bounds = self.frequency_bounds)
+
+
+
+		print('Finished Loading the Data, %d examples'%(len(self.keys)))
+
+
+
+
+	def _load_noisy_data(self):
 		'''Loads the data from the file into the data object'''
 		
 		#filetype = self.load_list[0].split(".")[-1] 
@@ -94,23 +147,28 @@ class AMI_dataset(torch.utils.data.Dataset):
 		keywords_df.columns = ["keyword", "key"]
 		keyword_to_key = {}
 
+		clean_speech_keys_list = set(list(self.word_to_num.keys()))
+
 		for row in keywords_df.itertuples():
 			keyword_to_key[row.keyword] = row.key
 
 
 		keyword_ignore_list = ["TS3009c","EN2002a","EN2002c","EN2003a"]
 
-		for load_file in self.load_list:
+		noisy_data_load_list = ["/nethome/achingacham/apiai/data/AMI_Noisy/feats.scp"]
+
+		for load_file in noisy_data_load_list:
 			file_keys,file_matrices,file_mat_lengths = [],[],[]
 			for i,(keyword,matrix) in enumerate(kaldi_io.read_mat_scp(load_file)):
 				#file_keys.append(key.split('_')[1])
 				if keyword.split(".")[0] in keyword_ignore_list:
 					continue
-				file_keys.append(keyword_to_key[keyword])
-				file_matrices.append(matrix)
-				file_mat_lengths.append(matrix.shape[0])
-				if i+1 == self.num_examples:
-					break
+				if keyword_to_key[keyword] in clean_speech_keys_list: #Only save the keys from the clean speech data
+					file_keys.append(keyword_to_key[keyword])
+					file_matrices.append(matrix)
+					file_mat_lengths.append(matrix.shape[0])
+					if i+1 == self.num_examples:
+						break
 			#Filter the data
 			file_keys,file_matrices = self._filter_on_character_length(file_keys,file_matrices ,char_threshold = self.char_threshold)
 
@@ -155,39 +213,6 @@ class AMI_dataset(torch.utils.data.Dataset):
 		#del self.keys,self.matrices
 		
 		return None
-	
-	def _generate_data_class(self):
-		
-		self.data_class = {}
-		
-		for key in self.c.keys():
-			ids = np.where(np.isin(self.labels,self.word_to_num[key]))
-			self.data_class[self.word_to_num[key]] = torch.tensor(self.inputs[ids], dtype = torch.float).cpu()
-
-		del self.inputs,self.labels
-
-	def _pick_data_class(self):
-
-
-		#Split the numbers into train, val and test
-		words = list(self.num_to_word.keys())
-		trainval,test = train_test_split(words, test_size=0.2, random_state=32)
-		train,val = train_test_split(trainval, test_size=0.25, random_state=32) 
-
-		print(list(map(len,[train,val,test])))
-
-
-		if self.split_set == "train":
-			del_list = val + test
-		elif self.split_set == "val":
-			del_list = train + test
-		else:
-			del_list = train + val
-
-		for key in (del_list):
-				del self.data_class[key]
-
-		print("For %sset number of unique words are %d"%(self.split_set,len(self.data_class.keys())))
 
 			
 	

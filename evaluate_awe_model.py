@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
 	bs = 64
 	num_examples = np.Inf
-	test_ds = AMI_dataset(num_examples = num_examples, split_set = "test", data_filepath = "Data/feats_cmvn.ark", char_threshold = 5, frequency_bounds = (0,155))
+	test_ds = AMI_dataset(num_examples = num_examples, split_set = "test", data_filepath = "Data/feats_cmvn.ark", char_threshold = 5, frequency_bounds = (0,np.Inf))
 	test_dl = DataLoader(test_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 
 
