@@ -269,6 +269,7 @@ class AMI_dataset(torch.utils.data.Dataset):
 
 		print('Length before filtering on frequency_bounds %d'%(len(keys)))
 		
+		return keys,matrices
 		
 		lower_bound,upper_bound = frequency_bounds[0],frequency_bounds[1]
 		
