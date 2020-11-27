@@ -89,8 +89,8 @@ if __name__ == '__main__':
 	net.to(dev)
 
 	#Load the model weights
-	clean_speech_model_weights = "/data/users/jmahapatra/models/awe_best_model.pth"
-	net.load_state_dict(torch.load(clean_speech_model_weights, map_location = torch.device('cpu') ))
+	#clean_speech_model_weights = "/data/users/jmahapatra/models/awe_best_model.pth"
+	#net.load_state_dict(torch.load(clean_speech_model_weights, map_location = torch.device('cpu') ))
 
 	#Defining training criterion
 	criterion = nn.NLLLoss()
@@ -99,7 +99,7 @@ if __name__ == '__main__':
 	num_epochs = 150
 	#Training the model
 	
-	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="/data/users/jmahapatra/models/",verbose = True)
+	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="/data/users/jmahapatra/models/test/",verbose = True)
 	#hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/test/",verbose = True)
 	
 	plot_learning_curves(hist,'/data/users/jmahapatra/data/learning_curves.png', show = False)
