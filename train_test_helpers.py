@@ -4,6 +4,7 @@ import pandas as pd
 import string
 from collections import Counter
 import kaldi_io
+import pdb
 
 #Scikit
 from sklearn import manifold
@@ -106,6 +107,8 @@ def train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path
         if epoch%5 == 0 and save_epochs:
             path = save_path + "simple_awe_bs64_epoch_%d_noisy.pth"%(epoch)
             torch.save(net.state_dict(), path)
+
+        pdb.set_trace()
 
         train_loss_list.append(train_loss.item()/len(train_dl))
         train_acc_list.append(train_acc.item()/len(train_dl))
