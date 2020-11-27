@@ -88,6 +88,9 @@ if __name__ == '__main__':
 	net = net.float()
 	net.to(dev)
 
+	#Load the model weights
+	clean_speech_model_weights = "/data/users/jmahapatra/models/awe_best_model.pth"
+	net.load_state_dict(torch.load(clean_speech_model_weights))
 
 	#Defining training criterion
 	criterion = nn.NLLLoss()
