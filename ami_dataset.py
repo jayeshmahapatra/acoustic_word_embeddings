@@ -149,7 +149,7 @@ class AMI_dataset(torch.utils.data.Dataset):
 		keywords_df.columns = ["keyword", "key"]
 		keyword_to_key = {}
 
-		clean_speech_keys_list = set(list(self.word_to_num.keys()))
+		#clean_speech_keys_list = set(list(self.word_to_num.keys()))
 
 		for row in keywords_df.itertuples():
 			keyword_to_key[row.keyword] = row.key
@@ -165,12 +165,12 @@ class AMI_dataset(torch.utils.data.Dataset):
 				#file_keys.append(key.split('_')[1])
 				if keyword.split(".")[0] in keyword_ignore_list:
 					continue
-				if keyword_to_key[keyword] in clean_speech_keys_list: #Only save the keys from the clean speech data
-					file_keys.append(keyword_to_key[keyword])
-					file_matrices.append(matrix)
-					file_mat_lengths.append(matrix.shape[0])
-					if i+1 == self.num_examples:
-						break
+				#if keyword_to_key[keyword] in clean_speech_keys_list: #Only save the keys from the clean speech data
+				file_keys.append(keyword_to_key[keyword])
+				file_matrices.append(matrix)
+				file_mat_lengths.append(matrix.shape[0])
+				if i+1 == self.num_examples:
+					break
 			#Filter the data
 			file_keys,file_matrices = self._filter_on_character_length(file_keys,file_matrices ,char_threshold = self.char_threshold)
 
