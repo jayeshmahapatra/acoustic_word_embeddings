@@ -18,7 +18,7 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 
-class AMI_dataset(torch.utils.data.Dataset):
+class AMI_noisy_intersect_clean_dataset(torch.utils.data.Dataset):
 	'''Dataset that on each iteration provides a triplet pair of acosutic segments, out of which
 	two belong to the same word, and one belongs to a different word.'''
 	
@@ -45,18 +45,18 @@ class AMI_dataset(torch.utils.data.Dataset):
 
 		#Load and Process the data
 		#Load the clean speech data and generate key dicts
-		#self._load_clean_data()
-		#self._pad_and_truncate_data()
-		#self._generate_key_dicts()
+		self._load_clean_data()
+		self._pad_and_truncate_data()
+		self._generate_key_dicts()
 		#self._generate_inputs_and_labels()
 
 		#Reset the data (only keep the dicts)
-		#self._reset_loaded_data()
+		self._reset_loaded_data()
 
 		#Load noisy data
 		self._load_noisy_data()
 		self._pad_and_truncate_data()
-		self._generate_key_dicts()
+		#self._generate_key_dicts()
 		self._generate_inputs_and_labels()
 
 
@@ -149,7 +149,7 @@ class AMI_dataset(torch.utils.data.Dataset):
 		keywords_df.columns = ["keyword", "key"]
 		keyword_to_key = {}
 
-		#clean_speech_keys_list = set(list(self.word_to_num.keys()))
+		clean_speech_keys_list = set(list(self.word_to_num.keys()))
 
 		for row in keywords_df.itertuples():
 			keyword_to_key[row.keyword] = row.key
@@ -165,12 +165,12 @@ class AMI_dataset(torch.utils.data.Dataset):
 				#file_keys.append(key.split('_')[1])
 				if keyword.split(".")[0] in keyword_ignore_list:
 					continue
-				#if keyword_to_key[keyword] in clean_speech_keys_list: #Only save the keys from the clean speech data
-				file_keys.append(keyword_to_key[keyword])
-				file_matrices.append(matrix)
-				file_mat_lengths.append(matrix.shape[0])
-				if i+1 == self.num_examples:
-					break
+				if keyword_to_key[keyword] in clean_speech_keys_list: #Only save the keys from the clean speech data
+					file_keys.append(keyword_to_key[keyword])
+					file_matrices.append(matrix)
+					file_mat_lengths.append(matrix.shape[0])
+					if i+1 == self.num_examples:
+						break
 			#Filter the data
 			file_keys,file_matrices = self._filter_on_character_length(file_keys,file_matrices ,char_threshold = self.char_threshold)
 

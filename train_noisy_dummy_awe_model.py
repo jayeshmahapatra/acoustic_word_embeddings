@@ -31,7 +31,7 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 from data_helpers import DataHelper
 from models import SimpleNet
 from train_test_helpers import accuracy,train_model,evaluate_model,evaluate_model_paper,test_model,plot_learning_curves
-from ami_dummy_dataset import AMI_dataset
+from ami_noisy_dummy_dataset import AMI_noisy_dummy_dataset
 
 if __name__ == '__main__':
 
@@ -72,10 +72,10 @@ if __name__ == '__main__':
 	bs = 64
 	num_examples = np.Inf
 	data_filepath = "/nethome/achingacham/apiai/data/AMI_Noisy/feats.scp"
-	train_ds = AMI_dataset(num_examples = num_examples, split_set = "train", data_filepath = data_filepath, char_threshold = 5, frequency_bounds = (0,np.Inf))
+	train_ds = AMI_noisy_dummy_dataset(num_examples = num_examples, split_set = "train", data_filepath = data_filepath, char_threshold = 5, frequency_bounds = (0,np.Inf))
 	train_dl = DataLoader(train_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 
-	val_ds = AMI_dataset(num_examples = num_examples, split_set = "val", data_filepath = data_filepath, char_threshold = 5, frequency_bounds = (0,np.Inf))
+	val_ds = AMI_noisy_dummy_dataset(num_examples = num_examples, split_set = "val", data_filepath = data_filepath, char_threshold = 5, frequency_bounds = (0,np.Inf))
 	val_dl = DataLoader(val_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 
 	#test_ds = TensorDataset(x_test, y_test)
@@ -99,10 +99,10 @@ if __name__ == '__main__':
 	num_epochs = 150
 	#Training the model
 	
-	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="/data/users/jmahapatra/models/dummy_noisy/",verbose = True)
+	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="/data/users/jmahapatra/models/noisy_dummy/",verbose = True)
 	#hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/test/",verbose = True)
 	
-	plot_learning_curves(hist,'/data/users/jmahapatra/data/learning_curves.png', show = False)
+	plot_learning_curves(hist,'/data/users/jmahapatra/data/noisy_dummy_learning_curves.png', show = False)
 	#plot_learning_curves(hist,'./Data/learning_curves.png', show = False)
 
 

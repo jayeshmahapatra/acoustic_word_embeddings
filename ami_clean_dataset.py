@@ -18,7 +18,7 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 
-class AMI_dataset(torch.utils.data.Dataset):
+class AMI_clean_dataset(torch.utils.data.Dataset):
 	'''Dataset that on each iteration provides a triplet pair of acosutic segments, out of which
 	two belong to the same word, and one belongs to a different word.'''
 	
@@ -44,12 +44,20 @@ class AMI_dataset(torch.utils.data.Dataset):
 		self.examples_per_class = 10
 
 		#Load and Process the data
-
-		#Load noisy data
-		self._load_noisy_data()
+		#Load the clean speech data and generate key dicts
+		self._load_clean_data()
 		self._pad_and_truncate_data()
 		self._generate_key_dicts()
 		self._generate_inputs_and_labels()
+
+		#Reset the data (only keep the dicts)
+		#self._reset_loaded_data()
+
+		#Load noisy data
+		#self._load_noisy_data()
+		#self._pad_and_truncate_data()
+		#self._generate_key_dicts()
+		#self._generate_inputs_and_labels()
 
 
 		#Shuffle the array
@@ -141,6 +149,7 @@ class AMI_dataset(torch.utils.data.Dataset):
 		keywords_df.columns = ["keyword", "key"]
 		keyword_to_key = {}
 
+		#clean_speech_keys_list = set(list(self.word_to_num.keys()))
 
 		for row in keywords_df.itertuples():
 			keyword_to_key[row.keyword] = row.key
@@ -156,7 +165,7 @@ class AMI_dataset(torch.utils.data.Dataset):
 				#file_keys.append(key.split('_')[1])
 				if keyword.split(".")[0] in keyword_ignore_list:
 					continue
-				
+				#if keyword_to_key[keyword] in clean_speech_keys_list: #Only save the keys from the clean speech data
 				file_keys.append(keyword_to_key[keyword])
 				file_matrices.append(matrix)
 				file_mat_lengths.append(matrix.shape[0])
@@ -172,7 +181,7 @@ class AMI_dataset(torch.utils.data.Dataset):
 			self.mat_lengths.extend(file_mat_lengths)
 
 		self.keys,self.matrices = self._filter_on_frequency_bounds(self.keys,self.matrices,frequency_bounds = self.frequency_bounds)
-		self.keys,self.matrices = self._keep_to_n_frequent_keys(self.keys, self.matrices, n = 100)
+
 
 
 		print('Finished Loading the Data, %d examples'%(len(self.keys)))
@@ -256,24 +265,6 @@ class AMI_dataset(torch.utils.data.Dataset):
 
 
 		return keys,matrices
-
-	def _keep_to_n_frequent_keys(self,keys,matrices,n):
-		'''Keeps only the top n most frequent words'''
-
-		c = Counter(keys)
-
-		top_n_keys = set([key for (key,value) in c.most_common(n)])
-
-		#Filter if the characters are smaller than the character threshold
-		keys,matrices = zip(*filter(lambda x: x[0] in top_n_keys, zip(keys,matrices)))
-
-		keys,matrices = list(keys),list(matrices)
-
-		print('Length after filtering on top %d frequent keys %d'%(n,len(keys)))
-
-		return keys,matrices
-
-
 
 	def _filter_on_frequency_bounds(self,keys,matrices,frequency_bounds = (0,np.Inf)):
 		'''Filter words that have frequnecy less than a lower bound threshold or more than an upper bound threshold'''
