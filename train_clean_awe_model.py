@@ -105,11 +105,11 @@ if __name__ == '__main__':
 	num_epochs = 150
 	#Training the model
 	
-	#hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="/data/users/jmahapatra/models/clean/",verbose = True)
-	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/clean/",verbose = True)
+	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="/data/users/jmahapatra/models/clean/",verbose = True)
+	#hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/clean/",verbose = True)
 	
-	#plot_learning_curves(hist,'/data/users/jmahapatra/data/clean_learning_curves.png', show = False)
-	plot_learning_curves(hist,'./Data/learning_curves.png', show = False)
+	plot_learning_curves(hist,'/data/users/jmahapatra/data/clean_learning_curves.png', show = False)
+	#plot_learning_curves(hist,'./Data/learning_curves.png', show = False)
 
 
 
