@@ -109,8 +109,8 @@ class AMI_clean_dataset(torch.utils.data.Dataset):
 		#filetype = self.load_list[0].split(".")[-1] 
 		#read_function = kaldi_io.read_mat_ark if filetype == "ark" else kaldi_io.read_mat_scp
 
-		clean_data_load_list = ['/data/users/jmahapatra/data/feats_cmvn.ark']
-
+		#clean_data_load_list = ['/data/users/jmahapatra/data/feats_cmvn.ark']
+		clean_data_load_list = ['./Data/feats_cmvn.ark']
 		for load_file in clean_data_load_list:
 			file_keys,file_matrices,file_mat_lengths = [],[],[]
 			for i,(key,matrix) in enumerate(kaldi_io.read_mat_ark(load_file)):
