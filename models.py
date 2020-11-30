@@ -47,7 +47,7 @@ class SimpleNet(nn.Module):
 
 class SimpleNet_with_dropout(nn.Module):
     def __init__(self,num_output,p):
-        super(SimpleNet, self).__init__()
+        super(SimpleNet_with_dropout, self).__init__()
         self.conv1 = nn.Conv1d(40,96,(10))
         self.pool1 = nn.MaxPool1d(3)
         self.conv2 = nn.Conv1d(96, 96, (8))
