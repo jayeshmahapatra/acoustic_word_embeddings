@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
 	num_output = len(train_ds.word_to_num.keys())
 	#num_output = len(c.keys())
-	net = SimpleNet_with_dropout(num_output, p =0.5)
+	net = SimpleNet_with_dropout(num_output, p =0.2)
 	net = net.float()
 	net.to(dev)
 
@@ -105,10 +105,10 @@ if __name__ == '__main__':
 	num_epochs = 150
 	#Training the model
 	
-	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="/data/users/jmahapatra/models/clean_dropout_50/",verbose = True)
+	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="/data/users/jmahapatra/models/clean_dropout_20/",verbose = True)
 	#hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/clean/",verbose = True)
 	
-	plot_learning_curves(hist,'/data/users/jmahapatra/data/clean_dropout_50_learning_curves.png', show = False)
+	plot_learning_curves(hist,'/data/users/jmahapatra/data/clean_dropout_20_learning_curves.png', show = False)
 	#plot_learning_curves(hist,'./Data/learning_curves.png', show = False)
 
 
