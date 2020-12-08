@@ -29,7 +29,7 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 
 #Import User defined classes
 from data_helpers import DataHelper
-from models import SimpleNet
+from models import SimpleNet, SimpleNet_with_dropout
 from train_test_helpers import accuracy,train_model,evaluate_model,evaluate_model_paper,test_model,plot_learning_curves
 from ami_clean_dataset import AMI_clean_dataset
 
@@ -79,7 +79,7 @@ if __name__ == '__main__':
 	#num_output = 9974
 	num_output = len(test_ds.c.keys())
 	#num_output = len(c.keys())
-	net = SimpleNet(num_output)
+	net = SimpleNet_with_dropout(num_output)
 	net = net.float()
 	net.to(dev)
 
