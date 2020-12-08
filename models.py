@@ -84,9 +84,12 @@ class SimpleNet_with_dropout(nn.Module):
         x = x.view(x.shape[0], -1)
         #print('Post')
         #print(x.shape)
-        x = F.relu(self.fc1(x))
+        x = self.dropout(F.relu(self.fc1(x)))
         #print(x.shape)
-        x = F.relu(self.fc2(x))
+        x = self.dropout(F.relu(self.fc2(x)))
+        #print(x.shape)
+        #print(x.shape)
+        #print("Done")
         return x.cpu().detach().numpy() if dev.type == 'cuda' else x.detach().numpy()
 
 

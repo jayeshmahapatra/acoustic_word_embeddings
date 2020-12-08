@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
 	bs = 64
 	num_examples = np.Inf
-	test_ds = AMI_clean_dataset(num_examples = num_examples, split_set = "test", data_filepath = "Data/feats_cmvn.ark", char_threshold = 5, frequency_bounds = (0,np.Inf))
+	test_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "test", data_filepath = data_filepath, char_threshold = 5, frequency_bounds = (0,np.Inf))
 	test_dl = DataLoader(test_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 
 
@@ -85,13 +85,16 @@ if __name__ == '__main__':
 
 	print('Loading best model')
 	#Load the best model
-	best_model_path = "./Models/awe_best_model.pth"
+	#best_model_path = "./Models/awe_best_model.pth"
+	best_model_path = "/data/users/jmahapatra/models/noisy_dropout/awe_best_model_noisy.pth"
+
 
 	net.load_state_dict(torch.load(best_model_path))
 	evaluate_dl = DataLoader(test_ds, batch_size=1024, pin_memory = True, drop_last = False)
 	test_acc = test_model(net,test_dl,dev)
-	print(test_acc)
-	#average_precision = evaluate_model(net,evaluate_dl,dev, num_examples = 11000)
+	print("test acc", test_acc)
+	average_precision = evaluate_model(net,test_dl,dev, num_examples = 11000)
+	print("average precision", average_precision)
 	#avg_p_paper = evaluate_model_paper(net,evaluate_dl,dev, False)
 
 
