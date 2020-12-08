@@ -32,6 +32,7 @@ from data_helpers import DataHelper
 from models import SimpleNet, SimpleNet_with_dropout
 from train_test_helpers import accuracy,train_model,evaluate_model,evaluate_model_paper,test_model,plot_learning_curves
 from ami_clean_dataset import AMI_clean_dataset
+from ami_noisy_dataset import AMI_noisy_dataset
 
 if __name__ == '__main__':
 
