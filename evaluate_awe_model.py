@@ -82,6 +82,7 @@ if __name__ == '__main__':
 	net = SimpleNet_with_dropout(num_output)
 	net = net.float()
 	net.to(dev)
+	net.eval()
 
 	print('Loading best model')
 	#Load the best model
