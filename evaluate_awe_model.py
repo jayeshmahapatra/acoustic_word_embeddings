@@ -81,7 +81,7 @@ if __name__ == '__main__':
 	#num_output = 9974
 	num_output = len(test_ds.c.keys())
 	#num_output = len(c.keys())
-	net = SimpleNet_with_dropout(num_output)
+	net = SimpleNet_with_dropout(num_output, p = 0.5)
 	net = net.float()
 	net.to(dev)
 	net.eval()
