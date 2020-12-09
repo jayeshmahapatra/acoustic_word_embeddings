@@ -97,7 +97,7 @@ def train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path
                 #path = save_path + "awe_best_model.pth"
                 if verbose:
                     print("Best val acc. Saving model...")
-                torch.save(net.state_dict(), path)
+                torch.save(net.state_dict(), save_path)
 
         
         
@@ -107,7 +107,7 @@ def train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path
         if epoch%5 == 0 and save_epochs:
             #path = save_path + "simple_awe_bs64_epoch_%d.pth"%(epoch)
             epoch_save_path = "/data/users/jmahapatra/models/" + "awe_bs64_epoch_%d.pth"%(epoch)
-            torch.save(net.state_dict(), path)
+            torch.save(net.state_dict(), epoch_save_path)
 
 
         train_loss_list.append(train_loss.item()/len(train_dl))
