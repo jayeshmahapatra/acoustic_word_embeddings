@@ -33,7 +33,7 @@ def accuracy(out, yb):
     preds = torch.argmax(out, dim=1)
     return (preds == yb).float().mean()
 
-def train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path = "./Models/",verbose = True):
+def train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path = "./Models/awe_best_model.pth",verbose = True):
     
     #Whether to save model every few epochs
     save_epochs = False
@@ -94,7 +94,7 @@ def train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path
             #val_acc = sum(accuracy(net(xb), yb.long()) for xb, yb in val_dl)
             if val_acc > best_val_acc:
                 best_val_acc = val_acc
-                path = save_path + "awe_best_model.pth"
+                #path = save_path + "awe_best_model.pth"
                 if verbose:
                     print("Best val acc. Saving model...")
                 torch.save(net.state_dict(), path)
@@ -105,7 +105,8 @@ def train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path
             print("train loss: %.3f train acc: %.3f"%(train_loss/len(train_dl),train_acc/len(train_dl)))
             print("val loss: %.3f val acc: %.3f"%(val_loss/len(val_dl),val_acc/len(val_dl)))
         if epoch%5 == 0 and save_epochs:
-            path = save_path + "simple_awe_bs64_epoch_%d.pth"%(epoch)
+            #path = save_path + "simple_awe_bs64_epoch_%d.pth"%(epoch)
+            epoch_save_path = "/data/users/jmahapatra/models/" + "awe_bs64_epoch_%d.pth"%(epoch)
             torch.save(net.state_dict(), path)
 
 

@@ -38,7 +38,7 @@ from ami_noisy_dataset import AMI_noisy_dataset
 
 if __name__ == '__main__':
 
-	print('Loading the Data')
+	
 	#load_list = ['/data/users/jmahapatra/data/feats_cmvn.ark']
 	'''
 	load_list = ['Data/feats_cmvn.ark']
@@ -88,7 +88,8 @@ if __name__ == '__main__':
 
 	bs = 64
 	num_examples = np.Inf
-
+	print('Loading the Data')
+	
 	if args.noisy:
 		test_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "test", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf))
 		test_dl = DataLoader(test_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
