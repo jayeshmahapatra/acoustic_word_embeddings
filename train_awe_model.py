@@ -108,7 +108,7 @@ if __name__ == '__main__':
 	else:
 		model_name += "_clean"
 	if args.dropout:
-		model_name += "_dropout_%d"%(int(probability*100))
+		model_name += "_dropout_%d"%(int(args.probability*100))
 
 	model_name += ".pth"
 
