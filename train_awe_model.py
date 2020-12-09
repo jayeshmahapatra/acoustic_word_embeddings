@@ -114,6 +114,8 @@ if __name__ == '__main__':
 
 	model_save_path = save_path + model_name
 
+	print("Training ",model_name)
+
 
 	hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path=model_save_path,verbose = True)
 	#hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/test/",verbose = True)

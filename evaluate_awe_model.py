@@ -89,7 +89,7 @@ if __name__ == '__main__':
 	#Load the best model
 	#best_model_path = "./Models/awe_best_model.pth"
 
-	
+
 	save_path = "/data/users/jmahapatra/models/"
 
 	model_name = "cnn"
@@ -104,6 +104,8 @@ if __name__ == '__main__':
 	model_name += ".pth"
 
 	model_save_path = save_path + model_name
+
+	print("Evaluating ", model_name)
 
 
 	net.load_state_dict(torch.load(best_model_path))
