@@ -108,7 +108,7 @@ if __name__ == '__main__':
 	print("Evaluating ", model_name)
 
 
-	net.load_state_dict(torch.load(best_model_path))
+	net.load_state_dict(torch.load(model_save_path))
 	evaluate_dl = DataLoader(test_ds, batch_size=1024, pin_memory = True, drop_last = False)
 	test_acc = test_model(net,test_dl,dev)
 	print("test acc", test_acc)
