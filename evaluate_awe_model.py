@@ -39,34 +39,6 @@ from ami_noisy_dataset import AMI_noisy_dataset
 if __name__ == '__main__':
 
 	
-	#load_list = ['/data/users/jmahapatra/data/feats_cmvn.ark']
-	'''
-	load_list = ['Data/feats_cmvn.ark']
-	num_examples = np.Inf
-
-	dh = DataHelper(load_list,num_examples)
-	dh.load_data(char_threshold = 5, frequency_bounds = (0,np.Inf))
-	dh.process_data()
-	c,word_to_num,num_to_word = dh.generate_key_dicts()
-
-	inputs,labels = dh.give_inputs_and_labels()
-	del dh
-
-	print('Splitting the data into train/val/test and creating dataloaders')
-	x_trainval,x_test,y_trainval,y_test = train_test_split(inputs, labels, test_size=0.2, random_state=32)
-	x_train,x_val,y_train,y_val = train_test_split(x_trainval,y_trainval,test_size =0.25, random_state = 32)
-
-	x_train,y_train = torch.tensor(x_train,dtype= torch.float),torch.tensor(y_train, dtype= torch.float)
-	x_val,y_val = torch.tensor(x_val, dtype= torch.float),torch.tensor(y_val, dtype= torch.float)
-	x_test,y_test = torch.tensor(x_test, dtype= torch.float),torch.tensor(y_test, dtype= torch.float)
-	print(x_train.shape,y_train.shape)
-	print(x_val.shape,y_val.shape)
-	print(x_test.shape,y_test.shape)
-	bs = 64
-	num_examples = np.Inf
-	test_ds = TensorDataset(x_test, y_test)
-	test_dl = DataLoader(test_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
-	'''
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-c','--noisy',help = "Noisy dataset", action = "store_true")
@@ -89,7 +61,7 @@ if __name__ == '__main__':
 	bs = 64
 	num_examples = np.Inf
 	print('Loading the Data')
-	
+
 	if args.noisy:
 		test_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "test", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf))
 		test_dl = DataLoader(test_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
@@ -103,7 +75,6 @@ if __name__ == '__main__':
 
 	#num_output = 9974
 	num_output = len(test_ds.c.keys())
-	#num_output = len(c.keys())
 
 	if args.dropout:
 		net = SimpleNet_with_dropout(num_output, p = dropout_probability)

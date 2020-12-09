@@ -4,6 +4,9 @@ import pandas as pd
 import string
 from collections import Counter
 import kaldi_io
+import argparse
+import sys
+
 
 #Scikit
 from sklearn import manifold
@@ -93,7 +96,7 @@ if __name__ == '__main__':
 	criterion = nn.NLLLoss()
 	optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 	#optimizer = optim.Adam(net.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False)
-	num_epochs = 150
+	num_epochs = 2
 	#Training the model
 	
 	save_path = "/data/users/jmahapatra/models/"
