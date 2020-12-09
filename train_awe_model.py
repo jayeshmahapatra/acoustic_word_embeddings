@@ -105,6 +105,8 @@ if __name__ == '__main__':
 
 	if args.noisy:
 		model_name += "_noisy"
+	else:
+		model_name += "_clean"
 	if args.dropout:
 		model_name += "_dropout_%d"%(int(probability*100))
 
@@ -121,6 +123,8 @@ if __name__ == '__main__':
 	lc_name = "learning_curves"
 	if args.noisy:
 		lc_name += "_noisy"
+	else:
+		lc_name += "_clean"
 	if args.dropout:
 		lc_name += "_dropout_%d"%(int(probability*100))
 	lc_name += ".png"
