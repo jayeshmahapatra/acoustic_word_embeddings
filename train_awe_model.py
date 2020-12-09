@@ -126,7 +126,7 @@ if __name__ == '__main__':
 	else:
 		lc_name += "_clean"
 	if args.dropout:
-		lc_name += "_dropout_%d"%(int(probability*100))
+		lc_name += "_dropout_%d"%(int(args.probability*100))
 	lc_name += ".png"
 
 	lc_save_path += lc_name
