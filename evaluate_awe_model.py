@@ -88,23 +88,22 @@ if __name__ == '__main__':
 	print('Loading best model')
 	#Load the best model
 	#best_model_path = "./Models/awe_best_model.pth"
-	if args.noisy:
-		if args.dropout:
-			if args.probability == 0.2:
-				best_model_path = "/data/users/jmahapatra/models/noisy_dropout_20/awe_best_model.pth"
-			elif args.probability == 0.5:
-				best_model_path = "/data/users/jmahapatra/models/noisy_dropout_50/awe_best_model.pth"
-		else:
-			best_model_path = "/data/users/jmahapatra/models/noisy/awe_best_model.pth"
-	else:
-		if args.dropout:
 
-			if args.probability == 0.2:
-				best_model_path = "/data/users/jmahapatra/models/clean_dropout_20/awe_best_model.pth"
-			elif args.probability == 0.5:
-				best_model_path = "/data/users/jmahapatra/models/clean_dropout_50/awe_best_model.pth"
-		else:
-			best_model_path = "/data/users/jmahapatra/models/clean/awe_best_model.pth"
+	
+	save_path = "/data/users/jmahapatra/models/"
+
+	model_name = "cnn"
+
+	if args.noisy:
+		model_name += "_noisy"
+	else:
+		model_name += "_clean"
+	if args.dropout:
+		model_name += "_dropout_%d"%(int(args.probability*100))
+
+	model_name += ".pth"
+
+	model_save_path = save_path + model_name
 
 
 	net.load_state_dict(torch.load(best_model_path))
