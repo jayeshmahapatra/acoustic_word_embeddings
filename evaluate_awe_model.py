@@ -4,6 +4,8 @@ import pandas as pd
 import string
 from collections import Counter
 import kaldi_io
+import argparse
+import sys
 
 #Scikit
 from sklearn import manifold
@@ -66,13 +68,33 @@ if __name__ == '__main__':
 	test_dl = DataLoader(test_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 	'''
 
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-c','--noisy',help = "Noisy dataset", action = "store_true")
+	parser.add_argument('-d','--dropout', help = "Dropout", action = "store_true")
+	parser.add_argument('-p','--probability', type = float, help = "Float : Dropout probability")
+	parser.add_argument('-n','--num_examples', type = int, default = 11000,  help = "Intger : Number of test examples to evaluate on")
+
+	args = parser.parse_args()
+
+	if args.dropout:
+		if not args.probability:
+			print("Specify probability of dropout using -p in command line")
+			sys.exit()
+		else:
+			dropout_probability = args.probability
+
+
 	dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 	bs = 64
 	num_examples = np.Inf
-	data_filepath = "/nethome/achingacham/apiai/data/AMI_Noisy/feats.scp"
-	test_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "test", data_filepath = data_filepath, char_threshold = 5, frequency_bounds = (0,np.Inf))
-	test_dl = DataLoader(test_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
+
+	if args.noisy:
+		test_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "test", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf))
+		test_dl = DataLoader(test_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
+	else:
+		test_ds = AMI_clean_dataset(num_examples = num_examples, split_set = "test", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf))
+		test_dl = DataLoader(test_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 
 
 
@@ -81,7 +103,12 @@ if __name__ == '__main__':
 	#num_output = 9974
 	num_output = len(test_ds.c.keys())
 	#num_output = len(c.keys())
-	net = SimpleNet_with_dropout(num_output, p = 0.5)
+
+	if args.dropout:
+		net = SimpleNet_with_dropout(num_output, p = dropout_probability)
+	else:
+		net = SimpleNet(num_output)
+
 	net = net.float()
 	net.to(dev)
 	net.eval()
@@ -89,14 +116,30 @@ if __name__ == '__main__':
 	print('Loading best model')
 	#Load the best model
 	#best_model_path = "./Models/awe_best_model.pth"
-	best_model_path = "/data/users/jmahapatra/models/noisy_dropout/awe_best_model_noisy.pth"
+	if args.noisy:
+		if args.dropout:
+			if args.probability == 0.2:
+				best_model_path = "/data/users/jmahapatra/models/noisy_dropout_20/awe_best_model.pth"
+			elif args.probability == 0.5:
+				best_model_path = "/data/users/jmahapatra/models/noisy_dropout_50/awe_best_model.pth"
+		else:
+			best_model_path = "/data/users/jmahapatra/models/noisy/awe_best_model.pth"
+	else:
+		if args.dropout:
+
+			if args.probability == 0.2:
+				best_model_path = "/data/users/jmahapatra/models/clean_dropout_20/awe_best_model.pth"
+			elif args.probability == 0.5:
+				best_model_path = "/data/users/jmahapatra/models/clean_dropout_50/awe_best_model.pth"
+		else:
+			best_model_path = "/data/users/jmahapatra/models/clean/awe_best_model.pth"
 
 
 	net.load_state_dict(torch.load(best_model_path))
 	evaluate_dl = DataLoader(test_ds, batch_size=1024, pin_memory = True, drop_last = False)
 	test_acc = test_model(net,test_dl,dev)
 	print("test acc", test_acc)
-	average_precision = evaluate_model(net,test_dl,dev, num_examples = 11000)
+	average_precision = evaluate_model(net,test_dl,dev, num_examples = args.num_examples)
 	print("average precision", average_precision)
 	#avg_p_paper = evaluate_model_paper(net,evaluate_dl,dev, False)
 
