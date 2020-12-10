@@ -42,7 +42,7 @@ class SimpleNet(nn.Module):
         #print(x.shape)
         x = F.relu(self.fc1(x))
         #print(x.shape)
-        x = F.relu(self.fc2(x))
+        #x = F.relu(self.fc2(x))
         return x.cpu().detach().numpy() if dev.type == 'cuda' else x.detach().numpy()
 
 class SimpleNet_with_dropout(nn.Module):
@@ -86,7 +86,7 @@ class SimpleNet_with_dropout(nn.Module):
         #print(x.shape)
         x = self.dropout(F.relu(self.fc1(x)))
         #print(x.shape)
-        x = self.dropout(F.relu(self.fc2(x)))
+        #x = self.dropout(F.relu(self.fc2(x)))
         #print(x.shape)
         #print(x.shape)
         #print("Done")
