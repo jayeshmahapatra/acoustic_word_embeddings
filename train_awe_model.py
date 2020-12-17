@@ -101,7 +101,7 @@ if __name__ == '__main__':
 	
 	save_path = "/data/users/jmahapatra/models/"
 
-	model_name = "half_cnn"
+	model_name = "cnn"
 
 	if args.noisy:
 		model_name += "_noisy"
@@ -122,7 +122,7 @@ if __name__ == '__main__':
 	
 	lc_save_path = "/data/users/jmahapatra/data/learning_curves/"
 
-	lc_name = "learning_curves_half"
+	lc_name = "learning_curves"
 	if args.noisy:
 		lc_name += "_noisy"
 	else:

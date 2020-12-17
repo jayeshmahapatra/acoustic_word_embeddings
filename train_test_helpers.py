@@ -12,6 +12,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics import pairwise_distances,average_precision_score
 from sklearn.metrics.pairwise import pairwise_kernels
+from sklearn.dummy import DummyClassifier
 from scipy import stats
 from scipy.spatial.distance import pdist
 
@@ -298,7 +299,24 @@ def test_model(net,test_dl,dev):
         test_acc = test_acc/len(test_dl)
 
     print("Test Accuracy of best model is %f"%(test_acc))
-    return test_acc   
+    return test_acc
+
+def baseline(train_ds, test_ds):
+
+    x_train, y_train = train_ds.inputs.numpy(), train_ds.labels.numpy()
+    x_test, y_test = test_ds.inputs.numpy(), test_ds.labels.numpy()
+
+    #Create Dummy classifier
+    dummy_clf = DummyClassifier(strategy="most_frequent")
+
+    #Fit dummy clf
+    dummy_clf.fit(x_train, y_train)
+
+    #Return mean accuracy on test
+    return dummy_clf.score(x_test, y_test)
+
+
+
 
 def plot_learning_curves(hist,name = 'learning_curves.png', show = True):
     

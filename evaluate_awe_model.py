@@ -13,6 +13,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics import pairwise_distances,average_precision_score
 from sklearn.metrics.pairwise import pairwise_kernels
+from sklearn.dummy import DummyClassifier
 from scipy import stats
 from scipy.spatial.distance import pdist
 
@@ -32,7 +33,7 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 #Import User defined classes
 from data_helpers import DataHelper
 from models import SimpleNet, SimpleNet_with_dropout
-from train_test_helpers import accuracy,train_model,evaluate_model,evaluate_model_paper,test_model,plot_learning_curves
+from train_test_helpers import accuracy,train_model,evaluate_model,evaluate_model_paper,test_model,plot_learning_curves, baseline
 from ami_clean_dataset import AMI_clean_dataset
 from ami_noisy_dataset import AMI_noisy_dataset
 
@@ -43,6 +44,7 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-c','--noisy',help = "Noisy dataset", action = "store_true")
 	parser.add_argument('-d','--dropout', help = "Dropout", action = "store_true")
+	parser.add_argument('-bl', '--baseline', help = "Baseline Test Acc", action = "store_true")
 	parser.add_argument('-p','--probability', type = float, help = "Float : Dropout probability")
 	parser.add_argument('-n','--num_examples', type = int, default = 11000,  help = "Intger : Number of test examples to evaluate on")
 
@@ -65,10 +67,15 @@ if __name__ == '__main__':
 	if args.noisy:
 		test_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "test", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf))
 		test_dl = DataLoader(test_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
+		if args.baseline:
+			train_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "train", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf))
+			#train_dl = DataLoader(train_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 	else:
 		test_ds = AMI_clean_dataset(num_examples = num_examples, split_set = "test", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf))
 		test_dl = DataLoader(test_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
-
+		if args.baseline:
+			train_ds = AMI_clean_dataset(num_examples = num_examples, split_set = "train", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf))
+			#train_dl = DataLoader(train_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 
 
 	print('Creating the Neural Net')
@@ -110,8 +117,15 @@ if __name__ == '__main__':
 
 	net.load_state_dict(torch.load(model_save_path))
 	evaluate_dl = DataLoader(test_ds, batch_size=1024, pin_memory = True, drop_last = False)
-	test_acc = test_model(net,test_dl,dev)
-	print("test acc", test_acc)
+	test_acc, baseline_acc = test_model(net,test_dl,dev)
+	print("test acc %f "%(test_acc))
+
+	#Baseline
+	if args.baseline:
+		baseline_acc = baseline(train_ds,test_ds)
+		print("Baseline acc %f "%(baseline_acc))
+
+
 	average_precision = evaluate_model(net,test_dl,dev, num_examples = args.num_examples)
 	print("average precision", average_precision)
 	#avg_p_paper = evaluate_model_paper(net,evaluate_dl,dev, False)
