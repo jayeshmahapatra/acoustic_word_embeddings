@@ -117,7 +117,7 @@ if __name__ == '__main__':
 
 	net.load_state_dict(torch.load(model_save_path))
 	evaluate_dl = DataLoader(test_ds, batch_size=1024, pin_memory = True, drop_last = False)
-	test_acc, baseline_acc = test_model(net,test_dl,dev)
+	test_acc  = test_model(net,test_dl,dev)
 	print("test acc %f "%(test_acc))
 
 	#Baseline
