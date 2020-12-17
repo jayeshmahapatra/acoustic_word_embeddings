@@ -66,6 +66,13 @@ class AMI_clean_dataset(torch.utils.data.Dataset):
 		x_trainval,x_test,y_trainval,y_test = train_test_split(self.inputs, self.labels, test_size=0.2, random_state=32)
 		x_train,x_val,y_train,y_val = train_test_split(x_trainval,y_trainval,test_size =0.25, random_state = 32)
 
+		##################################REMOVE THIS#####################
+		#Take half of the dataset
+		x_train, _, y_train, _ = train_test_split(x_train,y_train, test_size = 0.5, random_state = 32)
+		x_val, _, y_val, _ = train_test_split(x_val,y_val, test_size = 0.5, random_state = 32)
+		x_test, _, y_test, _ = train_test_split(x_test, y_test, test_size = 0.5, random_state = 32)
+		##################################
+
 		x_train,y_train = torch.tensor(x_train,dtype= torch.float),torch.tensor(y_train, dtype= torch.float)
 		x_val,y_val = torch.tensor(x_val, dtype= torch.float),torch.tensor(y_val, dtype= torch.float)
 		x_test,y_test = torch.tensor(x_test, dtype= torch.float),torch.tensor(y_test, dtype= torch.float)
