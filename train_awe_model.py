@@ -101,7 +101,7 @@ if __name__ == '__main__':
 	
 	save_path = "/data/users/jmahapatra/models/"
 
-	model_name = "cnn"
+	model_name = "half_cnn"
 
 	if args.noisy:
 		model_name += "_noisy"
