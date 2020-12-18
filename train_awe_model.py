@@ -63,13 +63,13 @@ if __name__ == '__main__':
 	print('Loading the Data')
 	
 	if args.noisy:
-		train_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "train", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf))
-		val_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "val", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf))
+		train_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "train", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), cluster = True)
+		val_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "val", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), cluster = True)
 		train_dl = DataLoader(train_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 		val_dl = DataLoader(val_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 	else:
-		train_ds = AMI_clean_dataset(num_examples = num_examples, split_set = "train", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf))
-		val_ds = AMI_clean_dataset(num_examples = num_examples, split_set = "val", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf))
+		train_ds = AMI_clean_dataset(num_examples = num_examples, split_set = "train", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), cluster = True)
+		val_ds = AMI_clean_dataset(num_examples = num_examples, split_set = "val", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), cluster = True)
 		train_dl = DataLoader(train_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 		val_dl = DataLoader(val_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 
