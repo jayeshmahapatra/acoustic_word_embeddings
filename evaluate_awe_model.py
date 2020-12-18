@@ -114,7 +114,7 @@ if __name__ == '__main__':
 
 	print("Evaluating ", model_name)
 
-
+	model_save_path = "/data/users/jmahapatra/models/half_cnn_clean.pth"
 	net.load_state_dict(torch.load(model_save_path))
 	evaluate_dl = DataLoader(test_ds, batch_size=1024, pin_memory = True, drop_last = False)
 	test_acc  = test_model(net,test_dl,dev)

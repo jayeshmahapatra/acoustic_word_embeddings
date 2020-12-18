@@ -22,7 +22,7 @@ class AMI_noisy_dataset(torch.utils.data.Dataset):
 	'''Dataset that on each iteration provides a triplet pair of acosutic segments, out of which
 	two belong to the same word, and one belongs to a different word.'''
 	
-	def __init__(self, num_examples = np.Inf, split_set = "train", data_filepath = "Data/feats_cmvn.ark", char_threshold = 5, frequency_bounds = (0,np.Inf)):
+	def __init__(self, num_examples = np.Inf, split_set = "train", data_filepath = "Data/feats_cmvn.ark", char_threshold = 5, frequency_bounds = (0,np.Inf), cluster = True):
 	
 		self.load_list = [data_filepath]
 		self.char_threshold = char_threshold
@@ -40,6 +40,7 @@ class AMI_noisy_dataset(torch.utils.data.Dataset):
 		self.num_to_word = None
 		self.inputs = None
 		self.labels = None
+		self.cluster = cluster
 		
 		self.examples_per_class = 10
 
@@ -109,7 +110,10 @@ class AMI_noisy_dataset(torch.utils.data.Dataset):
 		#filetype = self.load_list[0].split(".")[-1] 
 		#read_function = kaldi_io.read_mat_ark if filetype == "ark" else kaldi_io.read_mat_scp
 
-		clean_data_load_list = ['/data/users/jmahapatra/data/feats_cmvn.ark']
+		if self.cluster:
+			clean_data_load_list = ['/data/users/jmahapatra/data/feats_cmvn.ark']
+		else:
+			clean_data_load_list = ['./Data/feats_cmvn.ark']
 
 		for load_file in clean_data_load_list:
 			file_keys,file_matrices,file_mat_lengths = [],[],[]
@@ -145,7 +149,15 @@ class AMI_noisy_dataset(torch.utils.data.Dataset):
 
 
 		#Create the keyword to word dict
-		keywords_df = pd.read_csv("/nethome/achingacham/apiai/data/AMI_Noisy/text", sep = " ", header = None)
+		if self.cluster:
+			keyword_path = "/nethome/achingacham/apiai/data/AMI_Noisy/text"
+			noisy_data_load_list = ["/nethome/achingacham/apiai/data/AMI_Noisy/feats.scp"]
+		else:
+			keyword_path = "./Data/Noisy/text"
+			noisy_data_load_list = ["./Data/Noisy/feats.scp"]
+
+
+		keywords_df = pd.read_csv(keyword_path, sep = " ", header = None)
 		keywords_df.columns = ["keyword", "key"]
 		keyword_to_key = {}
 
@@ -157,7 +169,8 @@ class AMI_noisy_dataset(torch.utils.data.Dataset):
 
 		keyword_ignore_list = ["TS3009c","EN2002a","EN2002c","EN2003a"]
 
-		noisy_data_load_list = ["/nethome/achingacham/apiai/data/AMI_Noisy/feats.scp"]
+
+		
 
 		for load_file in noisy_data_load_list:
 			file_keys,file_matrices,file_mat_lengths = [],[],[]
