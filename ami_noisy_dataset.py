@@ -22,13 +22,14 @@ class AMI_noisy_dataset(torch.utils.data.Dataset):
 	'''Dataset that on each iteration provides a triplet pair of acosutic segments, out of which
 	two belong to the same word, and one belongs to a different word.'''
 	
-	def __init__(self, num_examples = np.Inf, split_set = "train", data_filepath = "Data/feats_cmvn.ark", char_threshold = 5, frequency_bounds = (0,np.Inf), cluster = True):
+	def __init__(self, num_examples = np.Inf, split_set = "train", data_filepath = "Data/feats_cmvn.ark", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = 0, cluster = True):
 	
 		self.load_list = [data_filepath]
 		self.char_threshold = char_threshold
 		self.frequency_bounds = frequency_bounds
 		self.num_examples = num_examples
 		self.split_set = split_set
+		self.snr = snr
 		
 
 		#Data Structures to store data
@@ -150,11 +151,16 @@ class AMI_noisy_dataset(torch.utils.data.Dataset):
 
 		#Create the keyword to word dict
 		if self.cluster:
-			keyword_path = "/nethome/achingacham/apiai/data/AMI_Noisy/text"
-			noisy_data_load_list = ["/nethome/achingacham/apiai/data/AMI_Noisy/feats.scp"]
+			if self.snr == 0:
+				keyword_path = "/nethome/achingacham/apiai/data/AMI_Noisy/text"
+				noisy_data_load_list = ["/nethome/achingacham/apiai/data/AMI_Noisy/feats.scp"]
+			elif self.snr == 20:
+				keyword_path = "/nethome/achingacham/apiai/data/AMI_White_SNR20/text"
+				noisy_data_load_list = ["/nethome/achingacham/apiai/data/AMI_White_SNR20/feats.scp"]
 		else:
-			keyword_path = "./Data/Noisy/text"
-			noisy_data_load_list = ["./Data/Noisy/feats.scp"]
+			if self.snr == 0:
+				keyword_path = "./Data/Noisy/text"
+				noisy_data_load_list = ["./Data/Noisy/feats.scp"]
 
 
 		keywords_df = pd.read_csv(keyword_path, sep = " ", header = None)

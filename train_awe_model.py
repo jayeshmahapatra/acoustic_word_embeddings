@@ -45,15 +45,29 @@ if __name__ == '__main__':
 	parser.add_argument('-d','--dropout', help = "Dropout", action = "store_true")
 	parser.add_argument('-p','--probability', type = float, help = "Float : Dropout probability")
 	parser.add_argument('-n','--num_examples', type = int, default = 11000,  help = "Intger : Number of test examples to evaluate on")
-
+	parser.add_argument('-snr', '--snr', type = int, default = 0, help = "SNR of the AMI Noisy data (required if noisy)")
 	args = parser.parse_args()
 
+
+	####Check Parser Arguments ############
+	parser_invalid = False #Flag to exit if parser arguments invalid
 	if args.dropout:
 		if not args.probability:
 			print("Specify probability of dropout using -p in command line")
-			sys.exit()
+			parser_invalid = True
 		else:
 			dropout_probability = args.probability
+	if args.noisy:
+		if (args.snr != 0) and (args.snr != 20):
+			print("Only snr values allowed are 0 and 20")
+			parser_invalid = True
+
+	if parser_invalid:
+		sys.exit()
+	else:
+		print("Parser Arguments Valid")
+
+	#######End of Checking Parser Arguments################
 
 
 	dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
