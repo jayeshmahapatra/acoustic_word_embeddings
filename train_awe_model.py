@@ -41,10 +41,10 @@ if __name__ == '__main__':
 
 
 	parser = argparse.ArgumentParser()
-	parser.add_argument('-c','--noisy',help = "Noisy dataset", action = "store_true")
+	parser.add_argument('-n','--noisy',help = "Noisy dataset", action = "store_true")
 	parser.add_argument('-d','--dropout', help = "Dropout", action = "store_true")
 	parser.add_argument('-p','--probability', type = float, help = "Float : Dropout probability")
-	parser.add_argument('-n','--num_examples', type = int, default = 11000,  help = "Intger : Number of test examples to evaluate on")
+	parser.add_argument('-ne','--num_examples', type = int, default = 11000,  help = "Intger : Number of test examples to evaluate on")
 	parser.add_argument('-snr', '--snr', type = int, default = 0, help = "SNR of the AMI Noisy data (required if noisy)")
 	args = parser.parse_args()
 
