@@ -124,7 +124,7 @@ if __name__ == '__main__':
 	model_name = "cnn"
 
 	if args.noisy:
-		model_name += "_noisy"
+		model_name += "_noisy_snr%d"%(args.snr)
 	else:
 		model_name += "_clean"
 	if args.dropout:
