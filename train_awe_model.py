@@ -144,7 +144,7 @@ if __name__ == '__main__':
 
 	lc_name = "learning_curves"
 	if args.noisy:
-		lc_name += "_noisy"
+		lc_name += "_noisy_snr%d"%(args.snr)
 	else:
 		lc_name += "_clean"
 	if args.dropout:
