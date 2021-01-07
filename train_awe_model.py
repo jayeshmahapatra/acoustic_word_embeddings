@@ -78,12 +78,10 @@ if __name__ == '__main__':
 	
 	#Datsets
 	if args.noisy:
-		if args.snr == 0:
-			train_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "train", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = 0, cluster = True)
-			val_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "val", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = 0, cluster = True)
-		elif args.snr == 20:
-			train_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "train", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = 20, cluster = True)
-			val_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "val", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = 20, cluster = True)
+
+		train_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "train", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = args.snr, cluster = True)
+		val_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "val", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = args.snr, cluster = True)
+
 	else:
 		train_ds = AMI_clean_dataset(num_examples = num_examples, split_set = "train", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), cluster = True)
 		val_ds = AMI_clean_dataset(num_examples = num_examples, split_set = "val", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), cluster = True)
