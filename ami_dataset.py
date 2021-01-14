@@ -128,10 +128,6 @@ class AMI_dataset(torch.utils.data.Dataset):
 		for load_file in data_load_list:
 			file_keys,file_matrices,file_mat_lengths = [],[],[]
 			for i,(keyword,matrix) in enumerate(kaldi_io.read_mat_scp(load_file)):
-				#file_keys.append(key.split('_')[1])
-				if keyword.split(".")[0] in keyword_ignore_list:
-					continue
-				#if keyword_to_key[keyword] in clean_speech_keys_list: #Only save the keys from the clean speech data
 				file_keys.append(keyword_to_key[keyword])
 				file_matrices.append(matrix)
 				file_mat_lengths.append(matrix.shape[0])
