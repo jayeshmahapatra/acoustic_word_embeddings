@@ -18,17 +18,18 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 
-class AMI_clean_dataset(torch.utils.data.Dataset):
+class AMI_dataset(torch.utils.data.Dataset):
 	'''Dataset that on each iteration provides a triplet pair of acosutic segments, out of which
 	two belong to the same word, and one belongs to a different word.'''
 	
-	def __init__(self, num_examples = np.Inf, split_set = "train", data_filepath = "Data/feats_cmvn.ark", char_threshold = 5, frequency_bounds = (0,np.Inf), cluster = True):
+	def __init__(self, num_examples = np.Inf, split_set = "train", data_filepath = "Data/feats_cmvn.ark", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = np.Inf, cluster = True):
 	
 		self.load_list = [data_filepath]
 		self.char_threshold = char_threshold
 		self.frequency_bounds = frequency_bounds
 		self.num_examples = num_examples
 		self.split_set = split_set
+		self.snr = snr
 		
 
 		#Data Structures to store data
@@ -45,20 +46,16 @@ class AMI_clean_dataset(torch.utils.data.Dataset):
 		self.examples_per_class = 10
 
 		#Load and Process the data
-		#Load the clean speech data and generate key dicts
-		self._load_clean_data()
+
+		#If snr is inf, load clean data, else load noisy data
+		if self.snr == np.Inf:
+			self._load_clean_data()
+		else:
+			self._load_noisy_data()
+
 		self._pad_and_truncate_data()
 		self._generate_key_dicts()
 		self._generate_inputs_and_labels()
-
-		#Reset the data (only keep the dicts)
-		#self._reset_loaded_data()
-
-		#Load noisy data
-		#self._load_noisy_data()
-		#self._pad_and_truncate_data()
-		#self._generate_key_dicts()
-		#self._generate_inputs_and_labels()
 
 
 		#Shuffle the array
@@ -97,14 +94,9 @@ class AMI_clean_dataset(torch.utils.data.Dataset):
 	
 	
 	################################## Helper Functions #####################################################################
-	def _reset_loaded_data(self):
-		'''Removes the loaded data from the dataset'''
-		self.keys = []
-		self.matrices = []
-		self.mat_lengths = []
 
 
-	def _load_clean_data(self):
+		def _load_clean_data(self):
 		'''Loads the data from the file into the data object'''
 		
 		#filetype = self.load_list[0].split(".")[-1] 
@@ -140,7 +132,6 @@ class AMI_clean_dataset(torch.utils.data.Dataset):
 
 
 
-
 	def _load_noisy_data(self):
 		'''Loads the data from the file into the data object'''
 		
@@ -149,7 +140,19 @@ class AMI_clean_dataset(torch.utils.data.Dataset):
 
 
 		#Create the keyword to word dict
-		keywords_df = pd.read_csv("/nethome/achingacham/apiai/data/AMI_Noisy/text", sep = " ", header = None)
+		if self.cluster:
+
+			data_directory = "/nethome/achingacham/apiai/data/AMI_White_SNR%d_v2/"%(self.snr)
+			keyword_path = data_directory + "text"
+			noisy_data_load_list = [data_directory+"feats.scp"]
+
+		else:
+			if self.snr == 0:
+				keyword_path = "./Data/Noisy/text"
+				noisy_data_load_list = ["./Data/Noisy/feats.scp"]
+
+
+		keywords_df = pd.read_csv(keyword_path, sep = " ", header = None)
 		keywords_df.columns = ["keyword", "key"]
 		keyword_to_key = {}
 
@@ -157,11 +160,7 @@ class AMI_clean_dataset(torch.utils.data.Dataset):
 
 		for row in keywords_df.itertuples():
 			keyword_to_key[row.keyword] = row.key
-
-
-		keyword_ignore_list = ["TS3009c","EN2002a","EN2002c","EN2003a"]
-
-		noisy_data_load_list = ["/nethome/achingacham/apiai/data/AMI_Noisy/feats.scp"]
+		
 
 		for load_file in noisy_data_load_list:
 			file_keys,file_matrices,file_mat_lengths = [],[],[]

@@ -34,8 +34,7 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 from data_helpers import DataHelper
 from models import SimpleNet, SimpleNet_with_dropout
 from train_test_helpers import accuracy,train_model,evaluate_model,evaluate_model_paper,test_model,plot_learning_curves, baseline
-from ami_clean_dataset import AMI_clean_dataset
-from ami_noisy_dataset import AMI_noisy_dataset
+from ami_dataset import AMI_dataset
 
 if __name__ == '__main__':
 
@@ -52,6 +51,7 @@ if __name__ == '__main__':
 
 	####Check Parser Arguments ############
 	parser_invalid = False #Flag to exit if parser arguments invalid
+	allowed_snr_values = [-5, 0, 5, 20] #Allowed values for snr
 	if args.dropout:
 		if not args.probability:
 			print("Specify probability of dropout using -p in command line")
@@ -59,8 +59,8 @@ if __name__ == '__main__':
 		else:
 			dropout_probability = args.probability
 	if args.noisy:
-		if (args.snr != 0) and (args.snr != 20):
-			print("Only snr values allowed are 0 and 20")
+		if args.snr not in allowed_snr_values:
+			print("Only snr values allowed are -5, 0, 5 and 20")
 			parser_invalid = True
 
 	if parser_invalid:
@@ -77,17 +77,19 @@ if __name__ == '__main__':
 	num_examples = np.Inf
 	print('Loading the Data')
 
-	#Datsets
-	if args.noisy:
-
-		test_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "test", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = args.snr, cluster = True)
-		
+	#Set snr to infinity if clean
+	if not args.noisy:
+		snr = np.Inf
 	else:
+		snr = args.snr
+
+
+	
+	test_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "test", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
 		
-		test_ds = AMI_clean_dataset(num_examples = num_examples, split_set = "test", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), cluster = True)
 	
 	if args.baseline:
-			train_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "train", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), cluster = True)
+			train_ds = AMI_dataset(num_examples = num_examples, split_set = "train", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
 	
 
 	#Dataloaders
