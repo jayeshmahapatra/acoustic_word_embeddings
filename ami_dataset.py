@@ -46,13 +46,7 @@ class AMI_dataset(torch.utils.data.Dataset):
 		self.examples_per_class = 10
 
 		#Load and Process the data
-
-		#If snr is inf, load clean data, else load noisy data
-		if self.snr == np.Inf:
-			self._load_clean_data()
-		else:
-			self._load_noisy_data()
-
+		self._load_data()
 		self._pad_and_truncate_data()
 		self._generate_key_dicts()
 		self._generate_inputs_and_labels()
@@ -96,43 +90,7 @@ class AMI_dataset(torch.utils.data.Dataset):
 	################################## Helper Functions #####################################################################
 
 
-		def _load_clean_data(self):
-		'''Loads the data from the file into the data object'''
-		
-		#filetype = self.load_list[0].split(".")[-1] 
-		#read_function = kaldi_io.read_mat_ark if filetype == "ark" else kaldi_io.read_mat_scp
-		if self.cluster:
-			clean_data_load_list = ['/data/users/jmahapatra/data/feats_cmvn.ark']
-		else:
-			clean_data_load_list = ['./Data/feats_cmvn.ark']
-
-
-		for load_file in clean_data_load_list:
-			file_keys,file_matrices,file_mat_lengths = [],[],[]
-			for i,(key,matrix) in enumerate(kaldi_io.read_mat_ark(load_file)):
-				file_keys.append(key.split('_')[1])
-				file_matrices.append(matrix)
-				file_mat_lengths.append(matrix.shape[0])
-				if i+1 == self.num_examples:
-					break
-			#Filter the data
-			file_keys,file_matrices = self._filter_on_character_length(file_keys,file_matrices ,char_threshold = self.char_threshold)
-
-
-			#Add to the main list
-			self.keys.extend(file_keys)
-			self.matrices.extend(file_matrices)
-			self.mat_lengths.extend(file_mat_lengths)
-
-		self.keys,self.matrices = self._filter_on_frequency_bounds(self.keys,self.matrices,frequency_bounds = self.frequency_bounds)
-
-
-
-		print('Finished Loading the Data, %d examples'%(len(self.keys)))
-
-
-
-	def _load_noisy_data(self):
+	def _load_data(self):
 		'''Loads the data from the file into the data object'''
 		
 		#filetype = self.load_list[0].split(".")[-1] 
@@ -142,14 +100,19 @@ class AMI_dataset(torch.utils.data.Dataset):
 		#Create the keyword to word dict
 		if self.cluster:
 
-			data_directory = "/nethome/achingacham/apiai/data/AMI_White_SNR%d_v2/"%(self.snr)
+			if self.snr == np.Inf:
+				#Clean
+				data_directory = "/nethome/achingacham/apiai/data/AMI_Clean/"
+			else:
+				data_directory = "/nethome/achingacham/apiai/data/AMI_White_SNR%d_v2/"%(self.snr)
+			
 			keyword_path = data_directory + "text"
-			noisy_data_load_list = [data_directory+"feats.scp"]
+			data_load_list = [data_directory+"feats.scp"]
 
 		else:
 			if self.snr == 0:
 				keyword_path = "./Data/Noisy/text"
-				noisy_data_load_list = ["./Data/Noisy/feats.scp"]
+				data_load_list = ["./Data/Noisy/feats.scp"]
 
 
 		keywords_df = pd.read_csv(keyword_path, sep = " ", header = None)
@@ -162,7 +125,7 @@ class AMI_dataset(torch.utils.data.Dataset):
 			keyword_to_key[row.keyword] = row.key
 		
 
-		for load_file in noisy_data_load_list:
+		for load_file in data_load_list:
 			file_keys,file_matrices,file_mat_lengths = [],[],[]
 			for i,(keyword,matrix) in enumerate(kaldi_io.read_mat_scp(load_file)):
 				#file_keys.append(key.split('_')[1])
