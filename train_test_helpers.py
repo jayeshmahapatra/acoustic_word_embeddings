@@ -125,7 +125,7 @@ def train_loop(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path 
     return hist
 
 
-def evaluate_model(net,test_dl, dev, num_examples = 0, curve_path = None):
+def evaluate_model(net,test_dl, dev, num_examples = np.Inf, curve_path = None):
     
     embeddings = None
     labels = None

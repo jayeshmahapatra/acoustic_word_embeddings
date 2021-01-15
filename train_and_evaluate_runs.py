@@ -163,7 +163,7 @@ def test_and_evaluate_model(run, test_dl, snr, dropout_probability):
 	print("test acc %f "%(test_acc))
 
 
-	average_precision = evaluate_model(net,test_dl,dev, precision_recall_curve_path)
+	average_precision = evaluate_model(net,test_dl,dev, np.Inf, precision_recall_curve_path)
 	print("average precision", average_precision)
 
 	return test_acc, average_precision
