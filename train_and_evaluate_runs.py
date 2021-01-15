@@ -149,6 +149,8 @@ def test_and_evaluate_model(run, test_dl, snr, dropout_probability):
 	#Add run number
 	model_name += "_run%d"%(run)
 
+	precision_recall_curve_path = model_name+".png"
+
 	model_name += ".pth"
 
 	model_save_path = save_path + model_name
@@ -161,7 +163,7 @@ def test_and_evaluate_model(run, test_dl, snr, dropout_probability):
 	print("test acc %f "%(test_acc))
 
 
-	average_precision = evaluate_model(net,test_dl,dev, num_examples = args.num_examples)
+	average_precision = evaluate_model(net,test_dl,dev, precision_recall_curve_path)
 	print("average precision", average_precision)
 
 	return test_acc, average_precision
