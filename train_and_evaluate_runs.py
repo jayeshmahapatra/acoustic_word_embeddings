@@ -177,7 +177,7 @@ if __name__ == '__main__':
 	dropout_values = [0, 0.2, 0.5]
 
 	#Number of Runs
-	num_runs = 5
+	num_runs = 1
 
 	evaluation_dict = {}
 	evaluation_dict["Dataset"] = []

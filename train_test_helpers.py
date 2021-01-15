@@ -192,6 +192,8 @@ def evaluate_model(net,test_dl, dev, num_examples = np.Inf, curve_path = None):
 
     if curve_path is not None:
         #Save the precision recall curve
+        print("saving precision recall curve")
+        print(curve_path)
         precision, recall, _ = precision_recall_curve(eval_labels,similarity)
         disp = PrecisionRecallDisplay(precision=precision, recall=recall)
         disp.plot()
