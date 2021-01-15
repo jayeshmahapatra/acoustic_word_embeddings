@@ -115,6 +115,8 @@ def test_and_evaluate_model(run, test_dl, snr, dropout_probability):
 	noisy = True if snr < np.Inf else False
 	dropout = True if dropout_probability > 0 else False
 
+	dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+
 	print('Creating the Neural Net')
 
 
