@@ -10,7 +10,8 @@ import pdb
 from sklearn import manifold
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import NearestNeighbors
-from sklearn.metrics import pairwise_distances,average_precision_score,plot_precision_recall_curve
+from sklearn.metrics import pairwise_distances,average_precision_score
+from sklearn.metrics import PrecisionRecallDisplay,precision_recall_curve
 from sklearn.metrics.pairwise import pairwise_kernels
 from sklearn.dummy import DummyClassifier
 from scipy import stats
@@ -191,7 +192,9 @@ def evaluate_model(net,test_dl, dev, num_examples = np.Inf, curve_path = None):
 
     if curve_path is not None:
         #Save the precision recall curve
-        plot_precision_recall_curve(eval_labels, similarity)
+        precision, recall, _ = precision_recall_curve(eval_labels,similarity)
+        disp = PrecisionRecallDisplay(precision=precision, recall=recall)
+        disp.plot()
         plt.savefig(curve_path)
 
     #avg_p = average_precision_score(eval_labels,2-distances)
