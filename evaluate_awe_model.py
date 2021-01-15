@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
 
 	
-	test_ds = AMI_noisy_dataset(num_examples = num_examples, split_set = "test", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
+	test_ds = AMI_dataset(num_examples = num_examples, split_set = "test", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
 		
 	
 	if args.baseline:
