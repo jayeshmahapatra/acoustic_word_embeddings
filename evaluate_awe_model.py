@@ -85,11 +85,11 @@ if __name__ == '__main__':
 
 
 	
-	test_ds = AMI_dataset(num_examples = num_examples, split_set = "test", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
+	test_ds = AMI_dataset(num_examples = num_examples, split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
 		
 	
 	if args.baseline:
-			train_ds = AMI_dataset(num_examples = num_examples, split_set = "train", data_filepath = "", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
+			train_ds = AMI_dataset(num_examples = num_examples, split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
 	
 
 	#Dataloaders
@@ -144,6 +144,8 @@ if __name__ == '__main__':
 	average_precision = evaluate_model(net,test_dl,dev, num_examples = args.num_examples)
 	print("average precision", average_precision)
 	#avg_p_paper = evaluate_model_paper(net,evaluate_dl,dev, False)
+
+
 
 
 

@@ -22,12 +22,10 @@ class AMI_dataset(torch.utils.data.Dataset):
 	'''Dataset that on each iteration provides a triplet pair of acosutic segments, out of which
 	two belong to the same word, and one belongs to a different word.'''
 	
-	def __init__(self, num_examples = np.Inf, split_set = "train", data_filepath = "Data/feats_cmvn.ark", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = np.Inf, cluster = True):
+	def __init__(self, split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = np.Inf, cluster = True):
 	
-		self.load_list = [data_filepath]
 		self.char_threshold = char_threshold
 		self.frequency_bounds = frequency_bounds
-		self.num_examples = num_examples
 		self.split_set = split_set
 		self.snr = snr
 		
@@ -43,7 +41,6 @@ class AMI_dataset(torch.utils.data.Dataset):
 		self.labels = None
 		self.cluster = cluster
 		
-		self.examples_per_class = 10
 
 		#Load and Process the data
 		self._load_data()
@@ -131,8 +128,7 @@ class AMI_dataset(torch.utils.data.Dataset):
 				file_keys.append(keyword_to_key[keyword])
 				file_matrices.append(matrix)
 				file_mat_lengths.append(matrix.shape[0])
-				if i+1 == self.num_examples:
-					break
+	
 			#Filter the data
 			file_keys,file_matrices = self._filter_on_character_length(file_keys,file_matrices ,char_threshold = self.char_threshold)
 

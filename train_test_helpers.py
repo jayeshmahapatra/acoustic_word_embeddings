@@ -10,7 +10,7 @@ import pdb
 from sklearn import manifold
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import NearestNeighbors
-from sklearn.metrics import pairwise_distances,average_precision_score
+from sklearn.metrics import pairwise_distances,average_precision_score,plot_precision_recall_curve
 from sklearn.metrics.pairwise import pairwise_kernels
 from sklearn.dummy import DummyClassifier
 from scipy import stats
@@ -34,7 +34,7 @@ def accuracy(out, yb):
     preds = torch.argmax(out, dim=1)
     return (preds == yb).float().mean()
 
-def train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path = "./Models/awe_best_model.pth",verbose = True):
+def train_loop(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path = "./Models/awe_best_model.pth",verbose = True):
     
     #Whether to save model every few epochs
     save_epochs = False
@@ -125,7 +125,7 @@ def train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path
     return hist
 
 
-def evaluate_model(net,test_dl, dev, num_examples = 11000):
+def evaluate_model(net,test_dl, dev, num_examples = 11000, curve_path = None):
     
     embeddings = None
     labels = None
@@ -186,9 +186,15 @@ def evaluate_model(net,test_dl, dev, num_examples = 11000):
     print('The number of positive examples %d and negative examples %d'%(num_positive,num_negative))
     #Calculate the Average Precision
     avg_p = average_precision_score(eval_labels,similarity)
+
+    if curve_path is not None:
+        #Save the precision recall curve
+        plot_precision_recall_curve(eval_labels, similarity)
+        plt.savefig(curve_path)
+
     #avg_p = average_precision_score(eval_labels,2-distances)
     #avg_p = average_precision_score(eval_labels,2-distances)
-    print('Average Precision is %f'%(avg_p))
+    #print('Average Precision is %f'%(avg_p))
     return avg_p
 
 
