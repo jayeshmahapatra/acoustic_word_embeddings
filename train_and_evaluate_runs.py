@@ -200,13 +200,13 @@ if __name__ == '__main__':
 		for dropout_probability in dropout_values:
 			model_acc = []
 			model_avg_p = []
-			for i in range(num_runs):
+			for run in range(num_runs):
 
 				#Train the model
-				train_model(run = i, snr = snr, dropout_probability = dropout_probability, train_dl, val_dl)
+				train_model(run, train_dl, val_dl, snr, dropout_probability)
 
 				#Evaluate the model
-				test_acc,avg_p = test_and_evaluate_model(run = i, snr = snr, dropout_probability = dropout_probability, test_dl)
+				test_acc,avg_p = test_and_evaluate_model(run, test_dl, snr, dropout_probability)
 
 				model_acc.append(test_acc)
 				model_avg_p.append(avg_p)
