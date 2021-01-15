@@ -101,7 +101,7 @@ def train_model(run, train_dl, val_dl, snr, dropout_probability):
 		lc_name += "_dropout_%d"%(int(dropout_probability*100))
 
 	#Add run number
-	model_name += "run%d"%(run)
+	model_name += "_run%d"%(run)
 
 	lc_name += ".png"
 
@@ -147,7 +147,7 @@ def test_and_evaluate_model(run, test_dl, snr, dropout_probability):
 		model_name += "_dropout_%d"%(int(dropout_probability*100))
 
 	#Add run number
-	model_name += "run%d"%(run)
+	model_name += "_run%d"%(run)
 
 	model_name += ".pth"
 
