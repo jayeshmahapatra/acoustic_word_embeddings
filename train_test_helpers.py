@@ -148,8 +148,10 @@ def evaluate_model(net,test_dl, dev, num_examples = np.Inf, curve_path = None):
 
         if embeddings.shape[0]>num_examples:
             break
-    embeddings = embeddings[:num_examples]
-    labels = labels[:num_examples]
+
+    if num_examples < np.Inf:
+        embeddings = embeddings[:num_examples]
+        labels = labels[:num_examples]
 
     print("Size of labels %d"%(labels.shape[0]))
     print("Number of unique words %d"%(np.unique(labels).shape[0]))
