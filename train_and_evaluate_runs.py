@@ -58,7 +58,7 @@ def train_model(run, train_dl, val_dl, snr, dropout_probability):
 	criterion = nn.NLLLoss()
 	optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 	#optimizer = optim.Adam(net.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False)
-	num_epochs = 1
+	num_epochs = 150
 	#Training the model
 	
 	save_path = "/data/users/jmahapatra/models/"
@@ -149,7 +149,7 @@ def test_and_evaluate_model(run, test_dl, snr, dropout_probability):
 	#Add run number
 	model_name += "_run%d"%(run)
 
-	precision_recall_curve_path = model_name+".png"
+	precision_recall_curve_path = save_path + model_name+".png"
 
 	model_name += ".pth"
 
@@ -177,7 +177,7 @@ if __name__ == '__main__':
 	dropout_values = [0, 0.2, 0.5]
 
 	#Number of Runs
-	num_runs = 1
+	num_runs = 5
 
 	evaluation_dict = {}
 	evaluation_dict["Dataset"] = []
