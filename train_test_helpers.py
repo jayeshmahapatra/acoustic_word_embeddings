@@ -312,7 +312,12 @@ def test_model(net,test_dl,dev):
         test_acc = test_acc/len(test_dl)
 
     print("Test Accuracy of best model is %f"%(test_acc))
-    return test_acc.detach().numpy()
+
+    if dev.type == 'cuda':
+        test_acc = test_acc.detach().cpu().numpy()
+    else:
+        test_acc = test_acc.detach().numpy()
+    return test_acc
 
 def baseline(train_ds, test_ds):
 
