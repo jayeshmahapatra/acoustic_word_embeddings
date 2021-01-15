@@ -37,7 +37,7 @@ from models import SimpleNet, SimpleNet_with_dropout
 from train_test_helpers import accuracy,train_loop,evaluate_model,evaluate_model_paper,test_model,plot_learning_curves
 from ami_dataset import AMI_dataset
 
-def train_model(run = 0, snr = np.Inf, dropout_probability = 0, train_dl, val_dl):
+def train_model(run, train_dl, val_dl, snr, dropout_probability):
 
 	dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -110,7 +110,7 @@ def train_model(run = 0, snr = np.Inf, dropout_probability = 0, train_dl, val_dl
 
 	plot_learning_curves(hist,lc_save_path, show = False)
 
-def test_and_evaluate_model(run = 0, snr = np.Inf, dropout_probability = 0, test_dl):
+def test_and_evaluate_model(run, test_dl, snr, dropout_probability):
 
 	noisy = True if snr < np.Inf else False
 	dropout = True if dropout_probability > 0 else False
