@@ -312,7 +312,7 @@ def test_model(net,test_dl,dev):
         test_acc = test_acc/len(test_dl)
 
     print("Test Accuracy of best model is %f"%(test_acc))
-    return test_acc
+    return test_acc.detach().numpy()
 
 def baseline(train_ds, test_ds):
 
