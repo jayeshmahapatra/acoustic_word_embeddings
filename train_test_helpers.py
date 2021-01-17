@@ -197,6 +197,7 @@ def evaluate_model(net,test_dl, dev, num_examples = np.Inf, curve_path = None):
         disp = PrecisionRecallDisplay(precision=precision, recall=recall)
         disp.plot()
         plt.savefig(curve_path)
+        plt.close()
 
     #avg_p = average_precision_score(eval_labels,2-distances)
     #avg_p = average_precision_score(eval_labels,2-distances)
@@ -362,6 +363,7 @@ def plot_learning_curves(hist,name = 'learning_curves.png', show = True):
     plt.savefig(name)
     if show:
         plt.show()
+    plt.close()
 
 def run_data_study(splits,num_epochs,train_ds,val_dl,dev):
     lengths = [int(len(train_ds)*(1/splits)) for  i in range(splits)]
