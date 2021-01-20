@@ -83,8 +83,8 @@ if __name__ == '__main__':
 		snr = args.snr
 	
 	
-	train_ds = SiameseTriplets(split_set = "train", frequency_bounds = frequency_bounds, snr = snr, cluster = True)
-	val_ds = SiameseTriplets(split_set = "val", frequency_bounds = frequency_bounds, snr = snr, cluster = True)
+	train_ds = SiameseTriplets(split_set = "train", frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
+	val_ds = SiameseTriplets(split_set = "val", frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
 
 
 	#DataLoaders

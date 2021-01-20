@@ -270,9 +270,14 @@ class SiameseTriplets(torch.utils.data.Dataset):
 		'''Filter words that have frequnecy less than a lower bound threshold or more than an upper bound threshold'''
 
 		print('Length before filtering on frequency_bounds %d'%(len(keys)))
+
 		
 		
 		lower_bound,upper_bound = frequency_bounds[0],frequency_bounds[1]
+
+		#If bounds are at thresholds, return as it is
+		if lower_bound == 0 and upper_bound == np.Inf:
+			return keys,matrices
 		
 		#Create a Counter
 		c = Counter(keys)
