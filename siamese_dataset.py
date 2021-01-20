@@ -26,6 +26,7 @@ class SiameseTriplets(torch.utils.data.Dataset):
 		self.frequency_bounds = frequency_bounds
 		self.split_set = split_set
 		self.snr = snr
+		self.cluster = cluster
 		
 
 		#Data Structures to store data

@@ -28,6 +28,7 @@ class AMI_dataset(torch.utils.data.Dataset):
 		self.frequency_bounds = frequency_bounds
 		self.split_set = split_set
 		self.snr = snr
+		self.cluster = cluster
 		
 
 		#Data Structures to store data
@@ -39,7 +40,7 @@ class AMI_dataset(torch.utils.data.Dataset):
 		self.num_to_word = None
 		self.inputs = None
 		self.labels = None
-		self.cluster = cluster
+		
 		
 
 		#Load and Process the data
