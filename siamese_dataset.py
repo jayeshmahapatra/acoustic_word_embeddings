@@ -20,13 +20,12 @@ class SiameseTriplets(torch.utils.data.Dataset):
 	'''Dataset that on each iteration provides a triplet pair of acosutic segments, out of which
 	two belong to the same word, and one belongs to a different word.'''
 	
-	def __init__(self, num_examples = np.Inf, split_set = "train", data_filepath = "Data/feats_cmvn.ark", char_threshold = 5, frequency_bounds = (0,np.Inf)):
+	def __init__(self, split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = np.Inf, cluster = True):
 	
-		self.load_list = [data_filepath]
 		self.char_threshold = char_threshold
 		self.frequency_bounds = frequency_bounds
-		self.num_examples = num_examples
 		self.split_set = split_set
+		self.snr = snr
 		
 
 		#Data Structures to store data
@@ -121,17 +120,45 @@ class SiameseTriplets(torch.utils.data.Dataset):
 	def _load_data(self):
 		'''Loads the data from the file into the data object'''
 		
-		filetype = self.load_list[0].split(".")[-1] 
-		read_function = kaldi_io.read_mat_ark if filetype == "ark" else kaldi_io.read_mat_scp
+		#filetype = self.load_list[0].split(".")[-1] 
+		#read_function = kaldi_io.read_mat_ark if filetype == "ark" else kaldi_io.read_mat_scp
 
-		for load_file in self.load_list:
+
+		#Create the keyword to word dict
+		if self.cluster:
+
+			if self.snr == np.Inf:
+				#Clean
+				data_directory = "/nethome/achingacham/apiai/data/AMI_Clean/"
+			else:
+				data_directory = "/nethome/achingacham/apiai/data/AMI_White_SNR%d_v2/"%(self.snr)
+			
+			keyword_path = data_directory + "text"
+			data_load_list = [data_directory+"feats.scp"]
+
+		else:
+			if self.snr == 0:
+				keyword_path = "./Data/Noisy/text"
+				data_load_list = ["./Data/Noisy/feats.scp"]
+
+
+		keywords_df = pd.read_csv(keyword_path, sep = " ", header = None)
+		keywords_df.columns = ["keyword", "key"]
+		keyword_to_key = {}
+
+		#clean_speech_keys_list = set(list(self.word_to_num.keys()))
+
+		for row in keywords_df.itertuples():
+			keyword_to_key[row.keyword] = row.key
+		
+
+		for load_file in data_load_list:
 			file_keys,file_matrices,file_mat_lengths = [],[],[]
-			for i,(key,matrix) in enumerate(kaldi_io.read_mat_ark(load_file)):
-				file_keys.append(key.split('_')[1])
+			for i,(keyword,matrix) in enumerate(kaldi_io.read_mat_scp(load_file)):
+				file_keys.append(keyword_to_key[keyword])
 				file_matrices.append(matrix)
 				file_mat_lengths.append(matrix.shape[0])
-				if i+1 == self.num_examples:
-					break
+	
 			#Filter the data
 			file_keys,file_matrices = self._filter_on_character_length(file_keys,file_matrices ,char_threshold = self.char_threshold)
 
@@ -142,6 +169,8 @@ class SiameseTriplets(torch.utils.data.Dataset):
 			self.mat_lengths.extend(file_mat_lengths)
 
 		self.keys,self.matrices = self._filter_on_frequency_bounds(self.keys,self.matrices,frequency_bounds = self.frequency_bounds)
+
+
 
 		print('Finished Loading the Data, %d examples'%(len(self.keys)))
 

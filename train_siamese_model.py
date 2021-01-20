@@ -33,8 +33,8 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 #Import User defined classes
 from data_helpers import DataHelper
 from models import SimpleNet, SimpleNet_with_dropout
-from train_test_helpers import plot_learning_curves,train_loop
-from ami_dataset import AMI_dataset
+from train_test_helpers import plot_learning_curves,siamese_train_loop
+from siamese_dataset import SiameseTriplets
 
 if __name__ == '__main__':
 
@@ -83,9 +83,9 @@ if __name__ == '__main__':
 		snr = args.snr
 	
 	
-	train_ds = AMI_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
-	val_ds = AMI_dataset(split_set = "val", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
-	
+	train_ds = SiameseTriplets(split_set = "train", frequency_bounds = frequency_bounds, snr = snr, cluster = True)
+	val_ds = SiameseTriplets(split_set = "val", frequency_bounds = frequency_bounds, snr = snr, cluster = True)
+
 
 	#DataLoaders
 	train_dl = DataLoader(train_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
@@ -97,16 +97,16 @@ if __name__ == '__main__':
 
 	print('Using Device ',dev.type)
 
-	print('Creating the Neural Net')
-
-	num_output = len(train_ds.c.keys())
+	print('Creating the Siamese Neural Net')
 
 
-	if args.dropout:
-		net = SimpleNet_with_dropout(num_output, p = dropout_probability)
-	else:
-		net = SimpleNet(num_output)
+	#if args.dropout:
+	#	net = SimpleNet_with_dropout(num_output, p = dropout_probability)
+	#else:
+	#	net = SimpleNet(num_output)
 
+
+	net = SiameseNet()
 	net = net.float()
 	net.to(dev)
 
@@ -119,7 +119,7 @@ if __name__ == '__main__':
 	
 	save_path = "/data/users/jmahapatra/models/"
 
-	model_name = "cnn"
+	model_name = "siamese"
 
 	if args.noisy:
 		model_name += "_noisy_snr%d"%(args.snr)
@@ -135,12 +135,12 @@ if __name__ == '__main__':
 	print("Training ",model_name)
 
 
-	hist = train_loop(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path=model_save_path,verbose = True)
+	hist = siamese_train_loop(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path=model_save_path,verbose = True)
 	#hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/test/",verbose = True)
 	
 	lc_save_path = "/data/users/jmahapatra/data/learning_curves/"
 
-	lc_name = "learning_curves"
+	lc_name = "learning_curves_siamese"
 	if args.noisy:
 		lc_name += "_noisy_snr%d"%(args.snr)
 	else:
