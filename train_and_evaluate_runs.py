@@ -171,7 +171,8 @@ def test_and_evaluate_model(run, test_dl, snr, dropout_probability):
 if __name__ == '__main__':
 
 	#Snr values of different datasets
-	snr_values = [np.Inf, 20, 5, 0, -5]
+	#snr_values = [np.Inf, 20, 5, 0, -5]
+	snr_values = [-5]
 
 	#Dropout values
 	dropout_values = [0, 0.2, 0.5]
