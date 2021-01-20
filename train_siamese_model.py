@@ -110,8 +110,6 @@ if __name__ == '__main__':
 	net = net.float()
 	net.to(dev)
 
-	#Defining training criterion
-	criterion = nn.NLLLoss()
 	optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 	#optimizer = optim.Adam(net.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False)
 	num_epochs = 150
@@ -135,7 +133,7 @@ if __name__ == '__main__':
 	print("Training ",model_name)
 
 
-	hist = siamese_train_loop(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path=model_save_path,verbose = True)
+	hist = siamese_train_loop(net,num_epochs,train_dl,val_dl,optimizer,dev,save_path=model_save_path,verbose = True)
 	#hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/test/",verbose = True)
 	
 	lc_save_path = "/data/users/jmahapatra/data/learning_curves/"

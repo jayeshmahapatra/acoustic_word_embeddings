@@ -35,13 +35,16 @@ def accuracy(out, yb):
 	preds = torch.argmax(out, dim=1)
 	return (preds == yb).float().mean()
 
+def cos_distance(cos,x_1,x_2):
+    return (1- cos(x_1,x_2))/2
+
 def cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding,cos):
     m = 0.15
     lower_bound = torch.tensor(0.0).to(dev, non_blocking = True)
     a = torch.max(lower_bound,m + cos_distance(cos, word_embedding, same_word_embedding) - cos_distance(cos, word_embedding, diff_word_embedding))
     return torch.mean(a)
 
-def siamese_train_loop(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path = "./Models/siamese_best_model.pth",verbose = True):
+def siamese_train_loop(net,num_epochs,train_dl,val_dl,optimizer,dev,save_path = "./Models/siamese_best_model.pth",verbose = True):
 
 
 	#Whether to save model every few epochs
@@ -52,6 +55,8 @@ def siamese_train_loop(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,sa
 	train_loss_list = []
 	val_loss_list = []
 
+	#Cosine Similarity
+	cos = nn.CosineSimilarity(dim=1, eps=1e-6)
 
 	for epoch in range(0,num_epochs):
 		if verbose:
