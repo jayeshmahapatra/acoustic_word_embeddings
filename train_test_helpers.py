@@ -48,57 +48,57 @@ def siamese_train_loop(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,sa
 
 
 	for epoch in range(0,num_epochs):
-        if verbose:
-                print('epoch %d '%(epoch))
+		if verbose:
+				print('epoch %d '%(epoch))
 
-        train_loss = 0
-        net.train()
-        for batch_idx, (train_data,train_labels) in enumerate(train_dl):
+		train_loss = 0
+		net.train()
+		for batch_idx, (train_data,train_labels) in enumerate(train_dl):
 
-            #print(train_data.shape)
-            #Move to GPU
-            optimizer.zero_grad()
-            train_data = train_data.to(dev, non_blocking=True)
-            word = train_data[:,0,:]
-            same_word = train_data[:,1,:]
-            diff_word = train_data[:,2,:]
+			#print(train_data.shape)
+			#Move to GPU
+			optimizer.zero_grad()
+			train_data = train_data.to(dev, non_blocking=True)
+			word = train_data[:,0,:]
+			same_word = train_data[:,1,:]
+			diff_word = train_data[:,2,:]
 
-            word_embedding = net(word)
-            same_word_embedding = net(same_word)
-            diff_word_embedding = net(diff_word)
+			word_embedding = net(word)
+			same_word_embedding = net(same_word)
+			diff_word_embedding = net(diff_word)
 
-            loss = cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding, cos)
-            loss.backward()
-            optimizer.step()
-            train_loss += loss.item()
-
-
-        net.eval()
-        with torch.no_grad():
-            val_loss = 0
-            for batch_idx, (val_data,val_labels) in enumerate(val_dl):
-
-                val_data = val_data.to(dev, non_blocking=True)
-                word = val_data[:,0,:]
-                same_word = val_data[:,1,:]
-                diff_word = val_data[:,2,:]
-
-                word_embedding = net(word)
-                same_word_embedding = net(same_word)
-                diff_word_embedding = net(diff_word)
-
-                val_loss += cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding, cos)
-
-            if val_loss < best_val_loss:
-                best_val_loss = val_loss
-                print("Best val loss %.3f Saving Model..."%(val_loss/len(val_dl)))
-                torch.save(net.state_dict(),model_save_path)
+			loss = cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding, cos)
+			loss.backward()
+			optimizer.step()
+			train_loss += loss.item()
 
 
-        if verbose:
-            print("train loss: %.3f"%(train_loss/len(train_dl)))
-            print("val loss: %.3f"%(val_loss/len(val_dl)))
-        if epoch%5 == 0 and save_epochs:
+		net.eval()
+		with torch.no_grad():
+			val_loss = 0
+			for batch_idx, (val_data,val_labels) in enumerate(val_dl):
+
+				val_data = val_data.to(dev, non_blocking=True)
+				word = val_data[:,0,:]
+				same_word = val_data[:,1,:]
+				diff_word = val_data[:,2,:]
+
+				word_embedding = net(word)
+				same_word_embedding = net(same_word)
+				diff_word_embedding = net(diff_word)
+
+				val_loss += cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding, cos)
+
+			if val_loss < best_val_loss:
+				best_val_loss = val_loss
+				print("Best val loss %.3f Saving Model..."%(val_loss/len(val_dl)))
+				torch.save(net.state_dict(),model_save_path)
+
+
+		if verbose:
+			print("train loss: %.3f"%(train_loss/len(train_dl)))
+			print("val loss: %.3f"%(val_loss/len(val_dl)))
+		if epoch%5 == 0 and save_epochs:
 			#path = save_path + "simple_awe_bs64_epoch_%d.pth"%(epoch)
 			epoch_save_path = "/data/users/jmahapatra/models/" + "siamese_epoch_%d.pth"%(epoch)
 			torch.save(net.state_dict(), epoch_save_path)
