@@ -35,6 +35,12 @@ def accuracy(out, yb):
 	preds = torch.argmax(out, dim=1)
 	return (preds == yb).float().mean()
 
+def cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding,cos):
+    m = 0.15
+    lower_bound = torch.tensor(0.0).to(dev, non_blocking = True)
+    a = torch.max(lower_bound,m + cos_distance(cos, word_embedding, same_word_embedding) - cos_distance(cos, word_embedding, diff_word_embedding))
+    return torch.mean(a)
+
 def siamese_train_loop(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path = "./Models/siamese_best_model.pth",verbose = True):
 
 
