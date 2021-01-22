@@ -105,7 +105,8 @@ class AMI_dataset(torch.utils.data.Dataset):
 				data_directory = "/nethome/achingacham/apiai/data/AMI_White_SNR%d_v2/"%(self.snr)
 			
 			keyword_path = data_directory + "text"
-			data_load_list = [data_directory+"feats.scp"]
+			#data_load_list = [data_directory+"feats.scp"]
+			data_load_list = [data_directory+"feats_cmvn.ark"]
 
 		else:
 			if self.snr == 0:
@@ -125,7 +126,7 @@ class AMI_dataset(torch.utils.data.Dataset):
 
 		for load_file in data_load_list:
 			file_keys,file_matrices,file_mat_lengths = [],[],[]
-			for i,(keyword,matrix) in enumerate(kaldi_io.read_mat_scp(load_file)):
+			for i,(keyword,matrix) in enumerate(kaldi_io.read_mat_ark(load_file)):
 				file_keys.append(keyword_to_key[keyword])
 				file_matrices.append(matrix)
 				file_mat_lengths.append(matrix.shape[0])
