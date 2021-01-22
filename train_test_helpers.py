@@ -38,7 +38,7 @@ def accuracy(out, yb):
 def cos_distance(cos,x_1,x_2):
     return (1- cos(x_1,x_2))/2
 
-def cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding,cos):
+def cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding,cos, dev):
     m = 0.15
     lower_bound = torch.tensor(0.0).to(dev, non_blocking = True)
     a = torch.max(lower_bound,m + cos_distance(cos, word_embedding, same_word_embedding) - cos_distance(cos, word_embedding, diff_word_embedding))
@@ -78,7 +78,7 @@ def siamese_train_loop(net,num_epochs,train_dl,val_dl,optimizer,dev,save_path = 
 			same_word_embedding = net(same_word)
 			diff_word_embedding = net(diff_word)
 
-			loss = cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding, cos)
+			loss = cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding, cos, dev)
 			loss.backward()
 			optimizer.step()
 			train_loss += loss.item()
