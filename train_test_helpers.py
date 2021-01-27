@@ -54,6 +54,7 @@ def siamese_train_loop(net,num_epochs,train_dl,val_dl,optimizer,dev,save_path = 
 	hist = {}
 	train_loss_list = []
 	val_loss_list = []
+	model_save_path = save_path
 
 	#Cosine Similarity
 	cos = nn.CosineSimilarity(dim=1, eps=1e-6)
