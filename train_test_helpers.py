@@ -98,7 +98,7 @@ def siamese_train_loop(net,num_epochs,train_dl,val_dl,optimizer,dev,save_path = 
 				same_word_embedding = net(same_word)
 				diff_word_embedding = net(diff_word)
 
-				val_loss += cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding, cos)
+				val_loss += cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding, cos, dev)
 
 			if val_loss < best_val_loss:
 				best_val_loss = val_loss
