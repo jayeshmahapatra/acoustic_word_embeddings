@@ -502,6 +502,10 @@ def evaluate_siamese_model(net,test_dl, dev, num_examples = 11000):
 def test_siamese_model(net,test_dl, dev):
 	test_loss = 0
 	net.eval()
+
+	#Cosine Similarity
+	cos = nn.CosineSimilarity(dim=1, eps=1e-6)
+	
 	with torch.no_grad():
 		for i,(test_data,test_labels) in enumerate(test_dl):
 
