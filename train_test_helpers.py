@@ -505,7 +505,7 @@ def test_siamese_model(net,test_dl, dev):
 
 	#Cosine Similarity
 	cos = nn.CosineSimilarity(dim=1, eps=1e-6)
-	
+
 	with torch.no_grad():
 		for i,(test_data,test_labels) in enumerate(test_dl):
 
@@ -525,7 +525,7 @@ def test_siamese_model(net,test_dl, dev):
 
 			test_data.to('cpu')
 
-			test_loss += cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding, cos)
+			test_loss += cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding, cos, dev)
 			#show_cuda_memory()
 	final_test_loss = test_loss/len(test_dl)
 	print("Test Loss is %.3f"%(final_test_loss))
