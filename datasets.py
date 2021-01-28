@@ -609,35 +609,40 @@ class SiameseTriplets(torch.utils.data.Dataset):
 		num_classes = len(self.data_class.keys())
 
 		
-		#Create Triplets
-		for i,word_num in enumerate(self.data_class.keys()):
+		#Create Triplets of the form (key[j], key[k], random_key[l]), where j,k,l are indices to choose examples belonging to a key
+
+
+
+
+
+		for i,key in enumerate(self.data_class.keys()):
 			#Generate 5 examples per training class
-			for j in range(self.examples_per_class):
+			for index in range(self.examples_per_class):
 
-				#Pick a random word other than the current word
-				rnd_cls = random.randint(0,num_classes-2)
+				#Pick j 
+				j = choice(range(self.data_class[key].shape[0]))
 
-				if rnd_cls >=i:
-					rnd_cls += 1
+				#Pick index k as something other than j
+				allowed_indices = list(range(self.data_class[key].shape[0]))
+				allowed_indices.remove(j) #Any other index than j is allowed
+				#Randomly pick one of the allowed index
+				k = choice(allowed_indices)
+				
 
-				#The random word_num
-				rnd_word_num = list(self.data_class.keys())[rnd_cls]
+				#Pick a random key for the triplet
+				#random key
+		        allowed_keys = keys.copy()
+		        del allowed_keys[i]
+		        random_key = choice(allowed_keys)
 
-				#Pick a random sample other than j for the same class
-				if self.data_class[word_num].shape[0]-2 >0 :
-					sample_same_cls = random.randint(0,self.data_class[word_num].shape[0]-2)
-					if sample_same_cls >= j:
-						sample_same_cls += 1
-				else:
-					sample_same_cls = (j%self.data_class[word_num].shape[0] + 1)%self.data_class[word_num].shape[0]
+		        #random example for the random key
+		        l = choice(range(self.data_class[random_key].shape[0]))
 
-				#Pick a random sample for the different class
-				sample_diff_cls = random.randint(0,self.data_class[rnd_word_num].shape[0]-1)
 
 
 				#Append the triplet
-				self.triplets.append(torch.stack([self.data_class[word_num][j%self.data_class[word_num].shape[0]],self.data_class[word_num][sample_same_cls],self.data_class[rnd_word_num][sample_diff_cls]]))
-				self.triplets_labels.append([word_num,rnd_word_num])
+				self.triplets.append(torch.stack([self.data_class[key][j],self.data_class[key][k],self.data_class[random_key][l]]))
+				self.triplets_labels.append([key,random_key])
 
 		self.triplets = torch.stack(self.triplets).cpu()
 		self.triplets_labels = torch.tensor(self.triplets_labels).cpu()
