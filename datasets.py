@@ -583,6 +583,9 @@ class SiameseTriplets(torch.utils.data.Dataset):
 
 	def _split_dataset(self):
 
+		#Shuffle the array
+		self.inputs,self.labels = shuffle(self.inputs,self.labels, random_state = 3)
+
 		x_trainval,x_test,y_trainval,y_test = train_test_split(self.inputs, self.labels, test_size=0.2, random_state=32)
 		x_train,x_val,y_train,y_val = train_test_split(x_trainval,y_trainval,test_size =0.25, random_state = 32)
 

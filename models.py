@@ -118,15 +118,16 @@ class SiameseNet(nn.Module):
         return x
     
     def give_embeddings(self,x,dev):
-        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool1(F.relu(self.conv1(x)))
         #print(x.shape)
-        x = self.pool(F.relu(self.conv2(x)))
+        x = self.pool2(F.relu(self.conv2(x)))
         #print('Pre')
         #print(x.shape)  
         x = x.view(x.shape[0], -1)
         #print('Post')
         #print(x.shape)
-        x = F.relu(self.fc1(x))
+        x = self.fc1(x)
+        
         return x.cpu().detach().numpy() if dev.type == 'cuda' else x.detach().numpy()
 
 class OrthographicNet(nn.Module):
