@@ -36,13 +36,13 @@ def accuracy(out, yb):
 	return (preds == yb).float().mean()
 
 def cos_distance(cos,x_1,x_2):
-    return (1- cos(x_1,x_2))/2
+	return (1- cos(x_1,x_2))/2
 
 def cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding,cos, dev):
-    m = 0.15
-    lower_bound = torch.tensor(0.0).to(dev, non_blocking = True)
-    a = torch.max(lower_bound,m + cos_distance(cos, word_embedding, same_word_embedding) - cos_distance(cos, word_embedding, diff_word_embedding))
-    return torch.mean(a)
+	m = 0.15
+	lower_bound = torch.tensor(0.0).to(dev, non_blocking = True)
+	a = torch.max(lower_bound,m + cos_distance(cos, word_embedding, same_word_embedding) - cos_distance(cos, word_embedding, diff_word_embedding))
+	return torch.mean(a)
 
 def siamese_train_loop(net,num_epochs,train_dl,val_dl,optimizer,dev,save_path = "./Models/siamese_best_model.pth",verbose = True):
 
@@ -424,6 +424,111 @@ def baseline(train_ds, test_ds):
 
 	#Return mean accuracy on test
 	return dummy_clf.score(x_test, y_test)
+
+
+def evaluate_siamese_model(net,test_dl, dev, num_examples = 11000):
+	
+	embeddings = None
+	labels = None
+	
+	with torch.no_grad():
+		for i, (test_data,test_labels) in enumerate(test_dl):
+			#If device is GPU move features to GPU
+			if dev.type == 'cuda' and not test_data.is_cuda:
+				test_data = test_data.to(dev, non_blocking=True)
+
+			word = test_data[:,0,:]
+			same_word = test_data[:,1,:]
+			diff_word = test_data[:,2,:]
+
+			word_embedding = net(word).cpu().detach().numpy()
+			same_word_embedding = net(same_word).cpu().detach().numpy()
+			diff_word_embedding = net(diff_word).cpu().detach().numpy()
+
+			word_labels = test_labels[:,0]
+			same_word_labels = test_labels[:,0]
+			diff_word_labels = test_labels[:,1]
+
+			#Add to the main embeddings
+			if embeddings is not None:
+				embeddings = np.vstack((embeddings,word_embedding,same_word_embedding,diff_word_embedding))
+				labels = np.concatenate((labels,word_labels,same_word_labels,diff_word_labels),axis=0)
+			else:
+				embeddings = np.vstack((word_embedding,same_word_embedding,diff_word_embedding))
+				labels = np.concatenate((word_labels,same_word_labels,diff_word_labels),axis=0)
+			
+			if embeddings.shape[0] > num_examples:
+				break
+
+
+	
+	#Calculate pairwise cosine distance
+	distances = pairwise_distances(embeddings, metric='cosine')
+	#Calculate pairwise cosine similarity
+	similarity = pairwise_kernels(embeddings, metric = 'cosine')
+	
+	
+	
+	#Create labels of whether the words are same or not
+	if torch.is_tensor(labels):
+		labels = labels.detach().numpy()
+		
+	eval_labels = (labels[:,None]==labels).astype(float)
+	
+	
+	
+	#Remove the diagonal elements (word pairs with themselves)
+	mask = np.array(np.tril(np.ones((similarity.shape[0],similarity.shape[0]), dtype= int),-1),dtype = bool)
+	similarity = similarity[mask]
+	distances = distances[mask]
+	eval_labels = eval_labels[mask]
+		
+	#flatten the pairwise arrays
+	distances = np.ravel(distances)
+	similarity = np.ravel(similarity)
+	#Flatten the labels
+	eval_labels = np.ravel(eval_labels)
+	
+	num_positive = sum(eval_labels==1)
+	num_negative = eval_labels.shape[0]-num_positive
+	print('The number of positive examples %d and negative examples %d'%(num_positive,num_negative))
+	#Calculate the Average Precision
+	avg_p = average_precision_score(eval_labels,similarity)
+	#avg_p = average_precision_score(eval_labels,2-distances)
+	#avg_p = average_precision_score(eval_labels,2-distances)
+	print('Average Precision is %f'%(avg_p))
+	return avg_p
+
+def test_siamese_model(net,test_dl, dev):
+	test_loss = 0
+	net.eval()
+	with torch.no_grad():
+		for i,(test_data,test_labels) in enumerate(test_dl):
+
+			#print(i)
+
+			#show_cuda_memory()
+			#if dev.type == 'cuda' and not test_data.is_cuda:
+			#    test_data = test_data.to(dev, non_blocking=True)
+
+			word = test_data[:,0,:].to(dev)
+			same_word = test_data[:,1,:].to(dev)
+			diff_word = test_data[:,2,:].to(dev)
+
+			word_embedding = net(word)
+			same_word_embedding = net(same_word)
+			diff_word_embedding = net(diff_word)
+
+			test_data.to('cpu')
+
+			test_loss += cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding, cos)
+			#show_cuda_memory()
+	final_test_loss = test_loss/len(test_dl)
+	print("Test Loss is %.3f"%(final_test_loss))
+	return final_test_loss
+	
+
+	
 
 
 

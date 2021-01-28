@@ -33,8 +33,8 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 #Import User defined classes
 from data_helpers import DataHelper
 from models import SimpleNet, SimpleNet_with_dropout, SiameseNet
-from train_test_helpers import evaluate_model,test_model, baseline
-from ami_dataset import AMI_dataset
+from train_test_helpers import evaluate_siamese_model
+from siamese_dataset import SiameseTriplets
 
 if __name__ == '__main__':
 
@@ -43,7 +43,6 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-n','--noisy',help = "Noisy dataset", action = "store_true")
 	parser.add_argument('-d','--dropout', help = "Dropout", action = "store_true")
-	parser.add_argument('-bl', '--baseline', help = "Baseline Test Acc", action = "store_true")
 	parser.add_argument('-p','--probability', type = float, help = "Float : Dropout probability")
 	parser.add_argument('-ne','--num_examples', type = int, default = 11000,  help = "Intger : Number of test examples to evaluate on")
 	parser.add_argument('-snr', '--snr', type = int, default = 0, help = "SNR of the AMI Noisy data (required if noisy)")
@@ -85,11 +84,8 @@ if __name__ == '__main__':
 
 
 	
-	test_ds = AMI_dataset(num_examples = num_examples, split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
-		
+	test_ds = SiameseTriplets(split_set = "test", frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
 	
-	if args.baseline:
-			train_ds = AMI_dataset(num_examples = num_examples, split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
 	
 
 	#Dataloaders
@@ -106,16 +102,16 @@ if __name__ == '__main__':
 	else:
 		net = SimpleNet(num_output)
 
+	net = SiameseNet()
 	net = net.float()
 	net.to(dev)
-	net.eval()
 
 	print('Loading best model')
 	#Load the best model
 
 	save_path = "/data/users/jmahapatra/models/"
 
-	model_name = "cnn"
+	model_name = "siamese"
 
 	if args.noisy:
 		model_name += "_noisy_snr%d"%(args.snr)
@@ -131,16 +127,12 @@ if __name__ == '__main__':
 	print("Evaluating ", model_name)
 
 	net.load_state_dict(torch.load(model_save_path))
-	test_acc  = test_model(net,test_dl,dev)
-	print("test acc %f "%(test_acc))
 
-	#Baseline
-	if args.baseline:
-		baseline_acc = baseline(train_ds,test_ds)
-		print("Baseline acc %f "%(baseline_acc))
+	print("Test")
+	test_loss = test_siamese_model(net, test_dl, dev)
+	print("Test Loss", test_loss)
 
-
-	average_precision = evaluate_model(net,test_dl,dev, num_examples = args.num_examples)
+	average_precision = evaluate_siamese_model(net,test_dl,dev, num_examples = args.num_examples)
 	print("average precision", average_precision)
 	#avg_p_paper = evaluate_model_paper(net,evaluate_dl,dev, False)
 
