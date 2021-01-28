@@ -34,7 +34,7 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 from data_helpers import DataHelper
 from models import SimpleNet, SimpleNet_with_dropout
 from train_test_helpers import plot_learning_curves,train_loop
-from ami_dataset import AMI_dataset
+from datasets import AMI_dataset, SiameseTriplets
 
 if __name__ == '__main__':
 

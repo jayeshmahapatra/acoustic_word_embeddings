@@ -34,7 +34,7 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 from data_helpers import DataHelper
 from models import SimpleNet, SimpleNet_with_dropout, SiameseNet
 from train_test_helpers import evaluate_siamese_model, test_siamese_model
-from siamese_dataset import SiameseTriplets
+from datasets import AMI_dataset, SiameseTriplets
 
 if __name__ == '__main__':
 
@@ -42,8 +42,6 @@ if __name__ == '__main__':
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-n','--noisy',help = "Noisy dataset", action = "store_true")
-	parser.add_argument('-d','--dropout', help = "Dropout", action = "store_true")
-	parser.add_argument('-p','--probability', type = float, help = "Float : Dropout probability")
 	parser.add_argument('-ne','--num_examples', type = int, default = 11000,  help = "Intger : Number of test examples to evaluate on")
 	parser.add_argument('-snr', '--snr', type = int, default = 0, help = "SNR of the AMI Noisy data (required if noisy)")
 	args = parser.parse_args()
@@ -51,12 +49,6 @@ if __name__ == '__main__':
 	####Check Parser Arguments ############
 	parser_invalid = False #Flag to exit if parser arguments invalid
 	allowed_snr_values = [-5, 0, 5, 20] #Allowed values for snr
-	if args.dropout:
-		if not args.probability:
-			print("Specify probability of dropout using -p in command line")
-			parser_invalid = True
-		else:
-			dropout_probability = args.probability
 	if args.noisy:
 		if args.snr not in allowed_snr_values:
 			print("Only snr values allowed are -5, 0, 5 and 20")
@@ -94,14 +86,6 @@ if __name__ == '__main__':
 	
 	print('Creating the Neural Net')
 
-	#num_output = 9974
-	num_output = len(test_ds.c.keys())
-
-	if args.dropout:
-		net = SimpleNet_with_dropout(num_output, p = dropout_probability)
-	else:
-		net = SimpleNet(num_output)
-
 	net = SiameseNet()
 	net = net.float()
 	net.to(dev)
@@ -117,8 +101,7 @@ if __name__ == '__main__':
 		model_name += "_noisy_snr%d"%(args.snr)
 	else:
 		model_name += "_clean"
-	if args.dropout:
-		model_name += "_dropout_%d"%(int(args.probability*100))
+	
 
 	model_name += ".pth"
 

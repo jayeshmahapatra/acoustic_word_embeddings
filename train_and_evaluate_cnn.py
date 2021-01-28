@@ -35,7 +35,7 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 from data_helpers import DataHelper
 from models import SimpleNet, SimpleNet_with_dropout
 from train_test_helpers import accuracy,train_loop,evaluate_model,evaluate_model_paper,test_model,plot_learning_curves
-from ami_dataset import AMI_dataset
+from datasets import AMI_dataset, SiameseTriplets
 
 def train_model(run, train_dl, val_dl, snr, dropout_probability):
 
@@ -158,7 +158,6 @@ def test_and_evaluate_model(run, test_dl, snr, dropout_probability):
 	print("Evaluating ", model_name)
 
 	net.load_state_dict(torch.load(model_save_path))
-	evaluate_dl = DataLoader(test_ds, batch_size=1024, pin_memory = True, drop_last = False)
 	test_acc  = test_model(net,test_dl,dev)
 	print("test acc %f "%(test_acc))
 
