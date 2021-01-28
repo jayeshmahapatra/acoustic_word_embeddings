@@ -116,8 +116,8 @@ def siamese_train_loop(net,num_epochs,train_dl,val_dl,optimizer,dev,save_path = 
 			epoch_save_path = "/data/users/jmahapatra/models/" + "siamese_epoch_%d.pth"%(epoch)
 			torch.save(net.state_dict(), epoch_save_path)
 
-		train_loss_list.append(train_loss.item()/len(train_dl))
-		val_loss_list.append(val_loss.item()/len(val_dl))
+		train_loss_list.append(train_loss/len(train_dl))
+		val_loss_list.append(val_loss/len(val_dl))
 
 	hist['train_loss'] = train_loss_list
 	hist['val_loss'] = val_loss_list
