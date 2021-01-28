@@ -76,14 +76,14 @@ if __name__ == '__main__':
 
 
 	
-	#test_ds = SiameseTriplets(split_set = "test", frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
+	evaluate_ds = SiameseTriplets(split_set = "test", frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
 	test_ds = AMI_dataset(split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
 	
 	
 
 	#Dataloaders
 	test_dl = DataLoader(test_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
-		
+	evaluate_dl = DataLoader(evaluate_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 	
 	print('Creating the Neural Net')
 
@@ -116,7 +116,7 @@ if __name__ == '__main__':
 	test_loss = test_siamese_model(net, test_dl, dev)
 	print("Test Loss", test_loss)
 
-	average_precision = evaluate_model(net,test_dl,dev, num_examples = args.num_examples)
+	average_precision = evaluate_model(net,evaluate_dl,dev, num_examples = args.num_examples)
 	print("average precision", average_precision)
 	#avg_p_paper = evaluate_model_paper(net,evaluate_dl,dev, False)
 
