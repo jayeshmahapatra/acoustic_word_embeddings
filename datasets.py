@@ -457,7 +457,6 @@ class SiameseTriplets(torch.utils.data.Dataset):
 			if ids[0].shape[0] > 0:
 				self.data_class[self.word_to_num[key]] = torch.tensor(self.inputs[ids], dtype = torch.float).cpu()
 
-		print(self.data_class)
 		del self.inputs,self.labels
 
 
@@ -625,9 +624,10 @@ class SiameseTriplets(torch.utils.data.Dataset):
 				#Pick j 
 				j = choice(range(self.data_class[key].shape[0]))
 
-				#Pick index k as something other than j
+				#Pick index k as something other than j (ONLY if there are options)
 				allowed_indices = list(range(self.data_class[key].shape[0]))
-				allowed_indices.remove(j) #Any other index than j is allowed
+				if len(allowed_indices) > 1:
+					allowed_indices.remove(j) #Any other index than j is allowed
 				#Randomly pick one of the allowed index
 				k = choice(allowed_indices)
 				
