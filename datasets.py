@@ -5,6 +5,7 @@ import random
 import string
 from collections import Counter
 import random
+from random import choice
 import kaldi_io
 
 
