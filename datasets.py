@@ -632,7 +632,7 @@ class SiameseTriplets(torch.utils.data.Dataset):
 
 				#Pick a random key for the triplet
 				#random key
-				allowed_keys = self.keys.copy()
+				allowed_keys = self.data_class.keys()
 				del allowed_keys[i]
 				random_key = choice(allowed_keys)
 
