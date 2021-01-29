@@ -454,7 +454,7 @@ class SiameseTriplets(torch.utils.data.Dataset):
 		
 		for key in self.c.keys():
 			ids = np.where(np.isin(self.labels,self.word_to_num[key]))
-			print(ids)
+			print(ids[0].shape)
 			self.data_class[self.word_to_num[key]] = torch.tensor(self.inputs[ids], dtype = torch.float).cpu()
 
 		del self.inputs,self.labels
