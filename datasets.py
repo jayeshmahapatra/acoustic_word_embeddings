@@ -457,6 +457,7 @@ class SiameseTriplets(torch.utils.data.Dataset):
 			if ids[0].shape[0] > 0:
 				self.data_class[self.word_to_num[key]] = torch.tensor(self.inputs[ids], dtype = torch.float).cpu()
 
+		print(self.data_class)
 		del self.inputs,self.labels
 
 
