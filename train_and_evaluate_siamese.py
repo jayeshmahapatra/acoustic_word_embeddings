@@ -85,14 +85,13 @@ def train_siamese_model(run, train_dl, val_dl, snr):
 	
 	lc_save_path = "/data/users/jmahapatra/data/learning_curves/"
 
-	lc_name = "learning_curves"
+	lc_name = "learning_curves_siamese"
 
 	if noisy:
 		lc_name += "_noisy_snr%d"%(snr)
 	else:
 		lc_name += "_clean"
-	if dropout:
-		lc_name += "_dropout_%d"%(int(dropout_probability*100))
+	
 
 	#Add run number
 	model_name += "_run%d"%(run)
@@ -104,7 +103,7 @@ def train_siamese_model(run, train_dl, val_dl, snr):
 
 	plot_learning_curves(hist,lc_save_path, show = False)
 
-def test_and_evaluate_siamese_model(run, test_dl, snr, dropout_probability):
+def test_and_evaluate_siamese_model(run, test_dl, snr):
 
 	noisy = True if snr < np.Inf else False
 	
@@ -193,10 +192,10 @@ if __name__ == '__main__':
 		for run in range(num_runs):
 
 			#Train the model
-			train_siamese_model(run, train_dl, val_dl, snr, dropout_probability)
+			train_siamese_model(run, train_dl, val_dl, snr)
 
 			#Evaluate the model
-			test_loss,avg_p = test_and_evaluate_siamese_model(run, test_dl, snr, dropout_probability)
+			test_loss,avg_p = test_and_evaluate_siamese_model(run, test_dl, snr)
 
 			model_loss.append(test_loss)
 			model_avg_p.append(avg_p)
