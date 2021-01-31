@@ -123,8 +123,6 @@ def test_and_evaluate_siamese_model(run, test_dl, snr, dropout_probability):
 
 	save_path = "/data/users/jmahapatra/models/"
 
-	save_path = "/data/users/jmahapatra/models/"
-
 	model_name = "siamese"
 
 	noisy = True if snr < np.Inf else False
