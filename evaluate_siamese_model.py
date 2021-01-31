@@ -76,8 +76,8 @@ if __name__ == '__main__':
 
 
 	
-	evaluate_ds = SiameseTriplets(split_set = "test", frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
-	test_ds = AMI_dataset(split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
+	test_ds = SiameseTriplets(split_set = "test", frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
+	evaluate_ds = AMI_dataset(split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
 	
 	
 
