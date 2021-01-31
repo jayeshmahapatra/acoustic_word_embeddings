@@ -325,7 +325,7 @@ class SiameseTriplets(torch.utils.data.Dataset):
 		self.inputs = None
 		self.labels = None
 		
-		self.examples_per_class = 20
+		self.examples_per_class = 15
 
 		self.triplets = []
 		self.triplets_labels = []
