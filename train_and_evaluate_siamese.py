@@ -161,8 +161,8 @@ def test_and_evaluate_siamese_model(run, test_dl, snr, dropout_probability):
 if __name__ == '__main__':
 
 	#Snr values of different datasets
-	#snr_values = [np.Inf, 20, 5, 0, -5]
-	snr_values = [5]
+	snr_values = [np.Inf, 20, 5, 0, -5]
+	#snr_values = [5]
 
 
 	#Number of Runs
