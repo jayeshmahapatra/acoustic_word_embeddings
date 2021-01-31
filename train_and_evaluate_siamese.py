@@ -103,7 +103,7 @@ def train_siamese_model(run, train_dl, val_dl, snr):
 
 	plot_learning_curves(hist,lc_save_path, show = False)
 
-def test_and_evaluate_siamese_model(run, test_dl, snr):
+def test_and_evaluate_siamese_model(run, test_dl, evaluate_dl, snr):
 
 	noisy = True if snr < np.Inf else False
 	
@@ -150,7 +150,7 @@ def test_and_evaluate_siamese_model(run, test_dl, snr):
 	print("Test Loss", test_loss)
 
 
-	average_precision = evaluate_siamese_model(net,test_dl,dev, num_examples = args.num_examples)
+	average_precision = evaluate_model(net,evaluate_dl,dev, num_examples = 11000)
 	print("average precision", average_precision)
 
 	return test_loss, average_precision
@@ -179,11 +179,13 @@ if __name__ == '__main__':
 		train_ds = SiameseTriplets(split_set = "train", frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
 		val_ds = SiameseTriplets(split_set = "val", frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
 		test_ds = SiameseTriplets(split_set = "test", frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
+		evaluate_ds = AMI_dataset(split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
 
 		#DataLoaders
 		train_dl = DataLoader(train_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 		val_dl = DataLoader(val_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 		test_dl = DataLoader(test_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
+		evaluate_dl = DataLoader(evaluate_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 		
 
 	
@@ -195,7 +197,7 @@ if __name__ == '__main__':
 			train_siamese_model(run, train_dl, val_dl, snr)
 
 			#Evaluate the model
-			test_loss,avg_p = test_and_evaluate_siamese_model(run, test_dl, snr)
+			test_loss,avg_p = test_and_evaluate_siamese_model(run, test_dl, evaluate_dl, snr)
 
 			model_loss.append(test_loss)
 			model_avg_p.append(avg_p)
