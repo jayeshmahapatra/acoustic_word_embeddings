@@ -45,7 +45,7 @@ def train_siamese_model(run, train_dl, val_dl, snr):
 
 	print('Creating the Neural Net')
 
-	net = SiameseNet()
+	net = SiameseNet(dim_out = 256)
 	net = net.float()
 	net.to(dev)
 
