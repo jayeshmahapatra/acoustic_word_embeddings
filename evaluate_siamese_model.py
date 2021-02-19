@@ -118,6 +118,28 @@ if __name__ == '__main__':
 
 	average_precision = evaluate_model(net,evaluate_dl,dev, num_examples = args.num_examples)
 	print("average precision", average_precision)
+
+
+	last_epoch = True
+
+	if last_epoch:
+
+		net = SiameseNet()
+		net = net.float()
+		net.to(dev)
+
+		last_epoch_save_path = model_save_path[:-4]+ "_last_epoch.pth"
+		net.load_state_dict(torch.load(last_epoch_save_path))
+
+		print("Evaluating Model at Last Epoch")
+
+		print("Test")
+		test_loss = test_siamese_model(net, test_dl, dev)
+		print("Test Loss", test_loss)
+
+		average_precision = evaluate_model(net,evaluate_dl,dev, num_examples = args.num_examples)
+		print("average precision", average_precision)
+
 	#avg_p_paper = evaluate_model_paper(net,evaluate_dl,dev, False)
 
 

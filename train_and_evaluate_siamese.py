@@ -142,8 +142,6 @@ def test_and_evaluate_siamese_model(run, test_dl, evaluate_dl, snr):
 
 	model_save_path = save_path + model_name
 
-	print("Evaluating ", model_name)
-
 	net.load_state_dict(torch.load(model_save_path))
 	print("Test")
 	test_loss = test_siamese_model(net, test_dl, dev)
@@ -152,6 +150,7 @@ def test_and_evaluate_siamese_model(run, test_dl, evaluate_dl, snr):
 
 	average_precision = evaluate_model(net,evaluate_dl,dev, num_examples = 11000)
 	print("average precision", average_precision)
+
 
 	return test_loss, average_precision
 
