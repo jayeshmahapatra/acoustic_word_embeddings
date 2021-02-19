@@ -34,7 +34,7 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 from data_helpers import DataHelper
 from models import SiameseNet
 from train_test_helpers import plot_learning_curves,siamese_train_loop
-from datasets import AMI_dataset, SiameseTriplets
+from datasets import CNN_dataset, SiameseTriplets
 
 if __name__ == '__main__':
 
@@ -96,8 +96,8 @@ if __name__ == '__main__':
 	net = net.float()
 	net.to(dev)
 
-	optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-	#optimizer = optim.Adam(net.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False)
+	
+	optimizer = optim.Adam(net.parameters(), lr=0.001)
 	num_epochs = 150
 	#Training the model
 	

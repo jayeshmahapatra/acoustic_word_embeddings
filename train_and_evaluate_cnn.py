@@ -35,7 +35,7 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 from data_helpers import DataHelper
 from models import SimpleNet, SimpleNet_with_dropout
 from train_test_helpers import accuracy,train_loop,evaluate_model,evaluate_model_paper,test_model,plot_learning_curves
-from datasets import AMI_dataset, SiameseTriplets
+from datasets import CNN_dataset, SiameseTriplets
 
 def train_model(run, train_dl, val_dl, snr, dropout_probability):
 
@@ -191,9 +191,9 @@ if __name__ == '__main__':
 	for snr in snr_values:
 
 		#Load the Data
-		train_ds = AMI_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
-		val_ds = AMI_dataset(split_set = "val", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
-		test_ds = AMI_dataset(split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
+		train_ds = CNN_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
+		val_ds = CNN_dataset(split_set = "val", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
+		test_ds = CNN_dataset(split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
 
 		#DataLoaders
 		train_dl = DataLoader(train_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)

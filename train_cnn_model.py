@@ -34,7 +34,7 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 from data_helpers import DataHelper
 from models import SimpleNet, SimpleNet_with_dropout
 from train_test_helpers import plot_learning_curves,train_loop
-from datasets import AMI_dataset, SiameseTriplets
+from datasets import CNN_dataset, SiameseTriplets
 
 if __name__ == '__main__':
 
@@ -83,8 +83,8 @@ if __name__ == '__main__':
 		snr = args.snr
 	
 	
-	train_ds = AMI_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
-	val_ds = AMI_dataset(split_set = "val", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
+	train_ds = CNN_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
+	val_ds = CNN_dataset(split_set = "val", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
 	
 
 	#DataLoaders
