@@ -33,49 +33,49 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 
 #Import User defined classes
 from data_helpers import DataHelper
-from models import SimpleNet, SimpleNet_with_dropout, SiameseNet
-from train_test_helpers import evaluate_model, test_siamese_model, siamese_train_loop, plot_learning_curves
+from models import SimpleNet, SimpleNet_with_dropout
+from train_test_helpers import accuracy,train_loop,evaluate_model,evaluate_model_paper,test_model,plot_learning_curves
+from datasets import CNN_dataset, SiameseTriplets, CNN_top_k
 
-#datsets
-from datasets import CNN_dataset, SiameseTriplets, Siamese_top_k, CNN_top_k
-from datasets import BalancedBatchSampler,TopK_WordsSampler
-
-
-
-#Train and Evaluate Siamese models for top k words
-
-def train_siamese_model(k, train_dl, val_dl, snr):
+def train_model(k, train_dl, val_dl, snr, dropout_probability):
 
 	dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 	print('Creating the Neural Net')
 
-	print('Creating the Neural Net')
+	num_output = len(train_ds.c.keys())
 
-	net = SiameseNet()
+
+	if dropout_probability > 0:
+		net = SimpleNet_with_dropout(num_output, p = dropout_probability)
+	else:
+		net = SimpleNet(num_output)
+
 	net = net.float()
 	net.to(dev)
 
-
-
-
+	#Defining training criterion
+	criterion = nn.NLLLoss()
 	optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 	#optimizer = optim.Adam(net.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False)
 	num_epochs = 150
 	#Training the model
+
 	
 	save_path = "/data/users/jmahapatra/models/"
 
-	model_name = "siamese"
+	model_name = "cnn"
 
 	noisy = True if snr < np.Inf else False
-	
+	dropout = True if dropout_probability > 0 else False
 
 	if noisy:
 		model_name += "_noisy_snr%d"%(snr)
 	else:
 		model_name += "_clean"
 	
+	if dropout:
+		model_name += "_dropout_%d"%(int(dropout_probability*100))
 
 	#Add run number
 	model_name += "_top%d_words"%(k)
@@ -87,18 +87,19 @@ def train_siamese_model(k, train_dl, val_dl, snr):
 	print("Training ",model_name)
 
 
-	hist = siamese_train_loop(net,num_epochs,train_dl,val_dl,optimizer,dev,save_path=model_save_path,verbose = True)
+	hist = train_loop(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path=model_save_path,verbose = True)
 	#hist = train_model(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path="./Models/test/",verbose = True)
 	
 	lc_save_path = "/data/users/jmahapatra/data/learning_curves/"
 
-	lc_name = "learning_curves_siamese"
+	lc_name = "learning_curves"
 
 	if noisy:
 		lc_name += "_noisy_snr%d"%(snr)
 	else:
 		lc_name += "_clean"
-	
+	if dropout:
+		lc_name += "_dropout_%d"%(int(dropout_probability*100))
 
 	#Add run number
 	model_name += "_top%d_words"%(k)
@@ -110,35 +111,42 @@ def train_siamese_model(k, train_dl, val_dl, snr):
 
 	plot_learning_curves(hist,lc_save_path, show = False)
 
-def test_and_evaluate_siamese_model(k, test_dl, evaluate_dl, snr):
+def test_and_evaluate_model(k, test_dl, snr, dropout_probability):
 
 	noisy = True if snr < np.Inf else False
-	
+	dropout = True if dropout_probability > 0 else False
 
 	dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 	print('Creating the Neural Net')
 
-	net = SiameseNet()
+
+	num_output = len(test_ds.c.keys())
+
+
+	if dropout:
+		net = SimpleNet_with_dropout(num_output, p = dropout_probability)
+	else:
+		net = SimpleNet(num_output)
+
 	net = net.float()
 	net.to(dev)
-
+	net.eval()
 
 	print('Loading best model')
 	#Load the best model
 
 	save_path = "/data/users/jmahapatra/models/"
 
-	model_name = "siamese"
 
-	noisy = True if snr < np.Inf else False
-	
+	model_name = "cnn"
 
 	if noisy:
 		model_name += "_noisy_snr%d"%(snr)
 	else:
 		model_name += "_clean"
-	
+	if dropout:
+		model_name += "_dropout_%d"%(int(dropout_probability*100))
 
 	#Add run number
 	model_name += "_top%d_words"%(k)
@@ -152,83 +160,79 @@ def test_and_evaluate_siamese_model(k, test_dl, evaluate_dl, snr):
 	print("Evaluating ", model_name)
 
 	net.load_state_dict(torch.load(model_save_path))
-	print("Test")
-	test_loss = test_siamese_model(net, test_dl, dev)
-	print("Test Loss", test_loss)
+	test_acc  = test_model(net,test_dl,dev)
+	print("test acc %f "%(test_acc))
 
 
-	average_precision = evaluate_model(net,evaluate_dl,dev, num_examples = 11000)
+	average_precision = evaluate_model(net,test_dl,dev, np.Inf)
 	print("average precision", average_precision)
 
-	return test_loss, average_precision
+	return test_acc, average_precision
 
 if __name__ == '__main__':
 
 	#Snr values of different datasets
 	snr_values = [np.Inf, 20, 5, 0, -5]
-	#snr_values = [5]
-
-	k_values = [100,500,1000,5000]
 
 
+	#Dropout values
+	dropout_values = [0, 0.2, 0.5]
 
+	#k values
+	k_values = [100]
 
+	evaluation_dict = {}
+	evaluation_dict["Dataset"] = []
+	evaluation_dict["Dropout"] = []
+	evaluation_dict["Test Accuracy"] = []
+	evaluation_dict["K"] = []
+	evaluation_dict["Same-Different Task"] = []
+
+	bs = 64 #Batch Size
 
 	cluster = True
 
 
-	evaluation_dict = {}
-	evaluation_dict["Dataset"] = []
-	evaluation_dict["Test Loss"] = []
-	evaluation_dict["Same-Different Task"] = []
-	evaluation_dict["K"] = []
-
-	bs = 64 #Batch Size
-
-
 	for snr in snr_values:
 
-	
-		model_loss = []
-		model_avg_p = []
+		
 		for k in k_values:
-
-			print("Top %d words"%(k))
+		
 
 			#Load the Data
-			train_ds = Siamese_top_k(k = k, split_set = "train", frequency_bounds = (0,np.Inf), snr = snr, cluster = cluster)
-			val_ds = Siamese_top_k(k = k, split_set = "val", frequency_bounds = (0,np.Inf), snr = snr, cluster = cluster)
-			test_ds = Siamese_top_k(k = k, split_set = "test", frequency_bounds = (0,np.Inf), snr = snr, cluster = cluster)
-			evaluate_ds = CNN_top_k(k = k, split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = cluster)
+			train_ds = CNN_top_k(k = k, split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = cluster)
+			val_ds = CNN_top_k(k = k, split_set = "val", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = cluster)
+			test_ds = CNN_top_k(k = k, split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = cluster)
 
 			#DataLoaders
 			train_dl = DataLoader(train_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 			val_dl = DataLoader(val_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 			test_dl = DataLoader(test_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
-			evaluate_dl = DataLoader(evaluate_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
-			
 
 
-			#Train the model
-			train_siamese_model(k, train_dl, val_dl, snr)
 
-			#Evaluate the model
-			test_loss,avg_p = test_and_evaluate_siamese_model(k, test_dl, evaluate_dl, snr)
+			for dropout_probability in dropout_values:
+				
 
-			model_loss.append(test_loss)
-			model_avg_p.append(avg_p)
 
-		#Update the evaluation dict with average values
-		for loss,avg_p,k in zip(model_loss,model_avg_p,k_values):
-			dataset = "Clean" if snr == np.Inf else "Noisy SNR %d"%(snr)
-			evaluation_dict["Dataset"].append(dataset)
-			evaluation_dict["K"].append(k)
-			evaluation_dict["Test Loss"].append(loss)
-			evaluation_dict["Same-Different Task"].append(avg_p)
+
+				#Train the model
+				train_model(k, train_dl, val_dl, snr, dropout_probability)
+
+				#Evaluate the model
+				test_acc,avg_p = test_and_evaluate_model(k, test_dl, snr, dropout_probability)
+
+
+				dataset = "Clean" if snr == np.Inf else "Noisy SNR %d"%(snr)
+				evaluation_dict["Dataset"].append(dataset)
+				evaluation_dict["Dropout"].append(dropout_probability)
+				evaluation_dict["K"].append(k)
+				evaluation_dict["Test Accuracy"].append(test_acc)
+				evaluation_dict["Same-Different Task"].append(avg_p)
 
 	#Save the evaluation Dict as a csv
 	evaluation_df = pd.DataFrame(evaluation_dict)
-	evaluation_df_filepath = "/data/users/jmahapatra/data/siamese_top_k_evaluation.csv"
+	evaluation_df_filepath = "/data/users/jmahapatra/data/cnn_top_k_evaluation.csv"
 	evaluation_df.to_csv(evaluation_df_filepath, index = False)
 
 
