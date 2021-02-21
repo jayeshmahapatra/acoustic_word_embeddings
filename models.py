@@ -101,7 +101,8 @@ class SiameseNet(nn.Module):
         self.conv2 = nn.Conv1d(96, 96, (8))
         self.pool2 = nn.MaxPool1d(3)
         #self.fc1 = nn.Linear(1728, 1024)
-        self.fc1 = nn.Linear(672, dim_out)
+        self.fc1 = nn.Linear(672, 1024)
+        self.fc2 = nn.Linear(1024, dim_out)
     
     def forward(self, x):
         
