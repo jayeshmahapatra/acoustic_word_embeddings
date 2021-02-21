@@ -138,6 +138,14 @@ if __name__ == '__main__':
 		print("Test Loss", test_loss)
 
 
+		train_ds = SiameseTriplets(split_set = "train", frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
+		train_dl = DataLoader(train_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
+
+		print("Train set loss")
+		train_loss = test_siamese_model(net, train_dl, dev)
+		print("Test Loss", train_loss)		
+
+
 		print("Train set precision")
 
 		evaluate_ds = CNN_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
