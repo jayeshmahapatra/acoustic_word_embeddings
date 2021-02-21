@@ -133,10 +133,15 @@ if __name__ == '__main__':
 
 		print("Evaluating Model at Last Epoch")
 
-		print("Test")
+		print("Test set loss")
 		test_loss = test_siamese_model(net, test_dl, dev)
 		print("Test Loss", test_loss)
 
+
+		print("Train set precision")
+
+		evaluate_ds = CNN_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
+		evaluate_dl = DataLoader(evaluate_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 		average_precision = evaluate_model(net,evaluate_dl,dev, num_examples = args.num_examples)
 		print("average precision", average_precision)
 
