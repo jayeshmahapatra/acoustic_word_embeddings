@@ -114,7 +114,8 @@ class SiameseNet(nn.Module):
         x = x.view(x.shape[0], -1)
         #print('Post')
         #print(x.shape)
-        x = self.fc1(x)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
         
         return x
     
