@@ -179,7 +179,7 @@ if __name__ == '__main__':
 	dropout_values = [0, 0.2, 0.5]
 
 	#k values
-	k_values = [100]
+	k_values = [10]
 
 	evaluation_dict = {}
 	evaluation_dict["Dataset"] = []
