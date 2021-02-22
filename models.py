@@ -115,7 +115,7 @@ class SiameseNet(nn.Module):
         #print('Post')
         #print(x.shape)
         x = F.relu(self.fc1(x))
-        x = self.fc2(x)
+        x = F.relu(self.fc2(x))
         
         return x
     
@@ -128,7 +128,8 @@ class SiameseNet(nn.Module):
         x = x.view(x.shape[0], -1)
         #print('Post')
         #print(x.shape)
-        x = self.fc1(x)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
         
         return x.cpu().detach().numpy() if dev.type == 'cuda' else x.detach().numpy()
 
