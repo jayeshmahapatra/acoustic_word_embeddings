@@ -146,7 +146,7 @@ if __name__ == '__main__':
 	#k values
 	k_values = [10, 100, 500, 1000, 5000]
 
-	evaluate_on_k_values = False
+	evaluate_on_k_values = True
 
 	if evaluate_on_k_values:
 		for k in k_values:
