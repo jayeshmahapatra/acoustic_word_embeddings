@@ -247,16 +247,9 @@ class Base_AMI(Dataset):
 
 		return matrices,keys
 
+	def give_top_k_words(self, k):
 
-	def _filter_top_k_words(self, k):
-		'''Only keep the top k most common words'''
-
-		
-
-		print('Length before filtering for top %d words %d'%(k, self.labels.shape[0]))
-
-		
-
+		'''Returns instances belonging to the top k most common words'''
 
 		#Create a Counter
 		c = Counter(self.labels.tolist())
@@ -275,7 +268,22 @@ class Base_AMI(Dataset):
 
 
 		#only keep data for top k classes
-		self.inputs, self.labels = self.inputs[allowed_indices],self.labels[allowed_indices]
+		return self.inputs[allowed_indices],self.labels[allowed_indices]
+
+
+
+	def _filter_top_k_words(self, k):
+		'''Only keep the top k most common words'''
+
+		
+
+		print('Length before filtering for top %d words %d'%(k, self.labels.shape[0]))
+
+		
+
+
+		#only keep data for top k classes
+		self.inputs, self.labels = self.give_top_k_words(k)
 
 
 
@@ -283,6 +291,9 @@ class Base_AMI(Dataset):
 		print('Length after filtering for top %d words %d'%(k, self.labels.shape[0]))
 
 		return None
+
+	
+
 	
 	def _generate_key_dicts(self):
 		'''Arguments:
@@ -453,6 +464,16 @@ class CNN_dataset(CNN_Base):
 
 		#Shuffle the array
 		self._split_dataset()
+
+	def give_top_k(self, k):
+		'''Function returns a subset of the original data split, containing only the instances
+		belonging to the top k frequent words'''
+
+
+
+
+
+
 
 class CNN_top_k(CNN_Base):
 	'''Top k common words. Dataset containing mfcc features as input and the word as label'''

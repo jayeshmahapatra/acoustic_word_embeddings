@@ -142,6 +142,30 @@ if __name__ == '__main__':
 
 	average_precision = evaluate_model(net,test_dl,dev, num_examples = args.num_examples)
 	print("average precision", average_precision)
+
+	#k values
+	k_values = [10, 100, 500, 1000, 5000]
+
+	evaluate_on_k_values = False
+
+	if evaluate_on_k_values:
+		for k in k_values:
+
+			#Get the top k words
+			inputs,labels = test_ds.give_top_k_words(k)
+
+			#Create a dataset and dataloader with instances belonging to the top k words
+			k_ds = torch.TensorDataset(inputs, labels)
+			k_dl = DataLoader(k_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
+
+
+			print("Evaluating at top %d words"%(k))
+
+			k_avg_precision = evaluate_model(net,k_dl,dev, num_examples = args.num_examples)
+
+			print("average precision \n", k_avg_precision)
+
+
 	#avg_p_paper = evaluate_model_paper(net,evaluate_dl,dev, False)
 
 
