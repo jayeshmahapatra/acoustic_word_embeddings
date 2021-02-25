@@ -34,7 +34,7 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 from data_helpers import DataHelper
 from models import SimpleNet, SimpleNet_with_dropout, SiameseNet
 from train_test_helpers import evaluate_model,test_model, baseline
-from ami_dataset import AMI_dataset
+from datasets import CNN_dataset, SiameseTriplets, CNN_top_k
 
 if __name__ == '__main__':
 
@@ -85,11 +85,11 @@ if __name__ == '__main__':
 
 
 	
-	test_ds = AMI_dataset(split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
+	test_ds = CNN_dataset(split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
 		
 	
 	if args.baseline:
-			train_ds = AMI_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
+			train_ds = CNN_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
 	
 
 	#Dataloaders
