@@ -261,7 +261,7 @@ class Base_AMI(Dataset):
 		label_to_indices = {label: np.where(self.labels == label)[0]
 								 for label in labels_set}
 
-		present_top_k_labels_set = set(labels_set).intersection(top_k_labels_set)
+		present_top_k_labels_set = set(labels_set).intersection(set(top_k_labels_set))
 
 		print("Giving top %d words"%(len(present_top_k_labels_set)))
 
