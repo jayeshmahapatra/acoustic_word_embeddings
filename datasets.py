@@ -255,7 +255,7 @@ class Base_AMI(Dataset):
 		c = Counter(self.labels.tolist())
 
 
-		labels_set = list(set(self.labels))
+		labels_set = list(set(self.labels.numpy()))
 		top_k_labels_set,_ = zip(*c.most_common(k))
 
 		label_to_indices = {label: np.where(self.labels == label)[0]
