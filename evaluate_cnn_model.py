@@ -155,7 +155,7 @@ if __name__ == '__main__':
 			inputs,labels = test_ds.give_top_k_words(k)
 
 			#Create a dataset and dataloader with instances belonging to the top k words
-			k_ds = torch.TensorDataset(inputs, labels)
+			k_ds = TensorDataset(inputs, labels)
 			k_dl = DataLoader(k_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
 
 
