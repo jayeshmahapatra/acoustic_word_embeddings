@@ -261,7 +261,7 @@ class Base_AMI(Dataset):
 		label_to_indices = {label: np.where(self.labels == label)[0]
 								 for label in labels_set}
 
-		present_top_k_labels_set = labels_set.intersect(set(label_to_indices.keys()))
+		present_top_k_labels_set = set(labels_set).intersect(set(label_to_indices.keys()))
 
 		#Allowed indices are indices belonging to the allowed classes
 		allowed_indices = [label_to_indices[word] for word in present_top_k_labels_set]
