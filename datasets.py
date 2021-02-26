@@ -265,6 +265,12 @@ class Base_AMI(Dataset):
 
 		print("Giving top %d words"%(len(present_top_k_labels_set)))
 
+
+		print(labels_set)
+		print(label_to_indices.keys())
+		print(top_k_labels_set)
+		print(present_top_k_labels_set)
+
 		#Allowed indices are indices belonging to the allowed classes
 		allowed_indices = [label_to_indices[word] for word in present_top_k_labels_set]
 		allowed_indices = np.concatenate(allowed_indices)
