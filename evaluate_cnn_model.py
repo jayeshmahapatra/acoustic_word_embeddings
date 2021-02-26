@@ -144,7 +144,7 @@ if __name__ == '__main__':
 	print("average precision", average_precision)
 
 	#k values
-	k_values = [10, 100, 500, 1000, 5000]
+	k_values = [10, 100, 500, 1000, 2000,3000, 4000, 5000]
 
 	evaluate_on_k_values = True
 
