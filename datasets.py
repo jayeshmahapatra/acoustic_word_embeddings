@@ -261,8 +261,10 @@ class Base_AMI(Dataset):
 		label_to_indices = {label: np.where(self.labels == label)[0]
 								 for label in labels_set}
 
+		present_top_k_labels_set = labels_set.intersect(set(label_to_indices.keys()))
+
 		#Allowed indices are indices belonging to the allowed classes
-		allowed_indices = [label_to_indices[word] for word in top_k_labels_set]
+		allowed_indices = [label_to_indices[word] for word in present_top_k_labels_set]
 		allowed_indices = np.concatenate(allowed_indices)
 		
 
@@ -464,10 +466,6 @@ class CNN_dataset(CNN_Base):
 
 		#Shuffle the array
 		self._split_dataset()
-
-	def give_top_k(self, k):
-		'''Function returns a subset of the original data split, containing only the instances
-		belonging to the top k frequent words'''
 
 
 
