@@ -37,7 +37,7 @@ from models import SimpleNet, SimpleNet_with_dropout
 from train_test_helpers import accuracy,train_loop,evaluate_model,evaluate_model_paper,test_model,plot_learning_curves
 from datasets import CNN_dataset, SiameseTriplets, CNN_top_k
 
-def train_model(k, train_dl, val_dl, snr, dropout_probability):
+def train_model(run, k, train_dl, val_dl, snr, dropout_probability):
 
 	dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -80,6 +80,8 @@ def train_model(k, train_dl, val_dl, snr, dropout_probability):
 	#Add run number
 	model_name += "_top%d_words"%(k)
 
+	model_name += "_run_%d"%(run)
+
 	model_name += ".pth"
 
 	model_save_path = save_path + model_name
@@ -102,7 +104,9 @@ def train_model(k, train_dl, val_dl, snr, dropout_probability):
 		lc_name += "_dropout_%d"%(int(dropout_probability*100))
 
 	#Add run number
-	model_name += "_top%d_words"%(k)
+	lc_name += "_top%d_words"%(k)
+
+	lc_name += "_run_%d"%(run)
 
 	lc_name += ".png"
 
@@ -111,7 +115,7 @@ def train_model(k, train_dl, val_dl, snr, dropout_probability):
 
 	plot_learning_curves(hist,lc_save_path, show = False)
 
-def test_and_evaluate_model(k, test_dl, snr, dropout_probability):
+def test_and_evaluate_model(run, k, test_dl, snr, dropout_probability):
 
 	noisy = True if snr < np.Inf else False
 	dropout = True if dropout_probability > 0 else False
@@ -151,6 +155,8 @@ def test_and_evaluate_model(k, test_dl, snr, dropout_probability):
 	#Add run number
 	model_name += "_top%d_words"%(k)
 
+	model_name += "_run_%d"%(run)	
+
 	precision_recall_curve_path = save_path + model_name+".png"
 
 	model_name += ".pth"
@@ -182,12 +188,16 @@ if __name__ == '__main__':
 	#k_values = [10, 100, 500, 1000, 5000]
 	k_values = [2000,3000,4000]
 
+	num_runs = 5
+
 	evaluation_dict = {}
 	evaluation_dict["Dataset"] = []
 	evaluation_dict["Dropout"] = []
-	evaluation_dict["Test Accuracy"] = []
 	evaluation_dict["K"] = []
-	evaluation_dict["Same-Different Task"] = []
+
+	for run in range(num_runs):
+		evaluation_dict["Test Accuracy Run %d"%(run)] = []
+		evaluation_dict["Same-Different Task Run %d"%(run)] = []
 
 	bs = 64 #Batch Size
 
@@ -214,22 +224,29 @@ if __name__ == '__main__':
 
 			for dropout_probability in dropout_values:
 				
+				run_test_accuracies = []
+				run_avg_precisions = []
 
+				for run in range(num_runs):
 
+					#Train the model
+					train_model(run, k, train_dl, val_dl, snr, dropout_probability)
 
-				#Train the model
-				train_model(k, train_dl, val_dl, snr, dropout_probability)
+					#Evaluate the model
+					test_acc,avg_p = test_and_evaluate_model(run, k, test_dl, snr, dropout_probability)
 
-				#Evaluate the model
-				test_acc,avg_p = test_and_evaluate_model(k, test_dl, snr, dropout_probability)
+					run_test_accuracies.append(test_acc)
+					run_avg_precisions.append(avg_p)
 
 
 				dataset = "Clean" if snr == np.Inf else "Noisy SNR %d"%(snr)
 				evaluation_dict["Dataset"].append(dataset)
 				evaluation_dict["Dropout"].append(dropout_probability)
 				evaluation_dict["K"].append(k)
-				evaluation_dict["Test Accuracy"].append(test_acc)
-				evaluation_dict["Same-Different Task"].append(avg_p)
+
+				for run in num_runs:
+					evaluation_dict["Test Accuracy Run %d"%(run)].append(run_test_accuracies[run])
+					evaluation_dict["Same-Different Task Run %d"%(run)].append(run_avg_precisions[run])
 
 	#Save the evaluation Dict as a csv
 	evaluation_df = pd.DataFrame(evaluation_dict)
