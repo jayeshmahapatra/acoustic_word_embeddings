@@ -39,7 +39,7 @@ from datasets import CNN_dataset, SiameseTriplets, CNN_top_k
 
 def train_model(run, k, train_dl, val_dl, snr, dropout_probability):
 
-	dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+	dev = torch.device("cuda:1") if torch.cuda.is_available() else torch.device("cpu")
 
 	print('Creating the Neural Net')
 
