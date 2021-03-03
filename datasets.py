@@ -255,13 +255,19 @@ class Base_AMI(Dataset):
 		c = Counter(self.labels.tolist())
 
 
-		labels_set = list(set(self.labels.numpy()))
-		top_k_labels_set,_ = zip(*c.most_common(k))
+		if type(self.labels) is np.ndarray:
+			labels_set = set(self.labels)
+		else:
+			labels_set = set(self.labels.numpy())
+
+		labels_set = set(list(c.keys()))
+		top_k_labels,_ = zip(*c.most_common(k))
+		top_k_labels_set = set(top_k_labels)
 
 		label_to_indices = {label: np.where(self.labels == label)[0]
 								 for label in labels_set}
 
-		present_top_k_labels_set = set(labels_set).intersection(set(top_k_labels_set))
+		present_top_k_labels_set = labels_set.intersection(top_k_labels_set)
 
 		print("Giving top %d words"%(len(present_top_k_labels_set)))
 
