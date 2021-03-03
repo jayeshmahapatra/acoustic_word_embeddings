@@ -243,7 +243,7 @@ if __name__ == '__main__':
 				evaluation_dict["Dropout"].append(dropout_probability)
 				evaluation_dict["K"].append(k)
 
-				for run in num_runs:
+				for run in range(num_runs):
 					evaluation_dict["Test Accuracy Run %d"%(run)].append(run_test_accuracies[run])
 					evaluation_dict["Same-Different Task Run %d"%(run)].append(run_avg_precisions[run])
 
