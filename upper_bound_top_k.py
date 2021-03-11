@@ -198,7 +198,7 @@ if __name__ == '__main__':
 		evaluation_dict["Test Accuracy Run %d"%(run)] = []
 		evaluation_dict["Same-Different Task Run %d"%(run)] = []
 
-	bs = 64 #Batch Size
+	bs = 32 #Batch Size
 
 	cluster = True
 
