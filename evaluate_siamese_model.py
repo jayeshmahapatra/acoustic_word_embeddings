@@ -34,7 +34,7 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 from data_helpers import DataHelper
 from models import SimpleNet, SimpleNet_with_dropout, SiameseNet
 from train_test_helpers import evaluate_siamese_model, test_siamese_model, evaluate_model
-from datasets import CNN_dataset, SiameseTriplets, Siamese_top_k, CNN_top_k
+from datasets import CNN_dataset, SiameseTriplets
 
 if __name__ == '__main__':
 

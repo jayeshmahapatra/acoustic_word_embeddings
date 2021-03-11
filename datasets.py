@@ -196,56 +196,36 @@ class Base_AMI(Dataset):
 
 		return keys,matrices
 
-	def _filter_on_frequency_bounds(self,inputs,labels,frequency_bounds = (0,np.Inf)):
+	def _filter_on_frequency_bounds(self, frequency_bounds = (0,np.Inf)):
 		'''Filter words that have frequnecy less than a lower bound threshold or more than an upper bound threshold'''
 
-		matrices = inputs.tolist()
-		keys = labels.tolist()
 
-		print('Length before filtering on frequency_bounds %d'%(len(keys)))
+		print('Length before filtering on frequency_bounds ', (self.labels.shape))
 
-		
-		
 		lower_bound,upper_bound = frequency_bounds[0],frequency_bounds[1]
 
 		#If bounds are at thresholds, return as it is
 		if lower_bound == 0 and upper_bound == np.Inf:
-			return keys,matrices
+			print("Not filtering")
+			return None
 		
 		#Create a Counter
-		c = Counter(keys)
-		
-		data_class = {}
+		c = Counter(self.labels.tolist())
 
-		for key in c.keys():
-			ids = [index for index, element in enumerate(keys) if element == key]
-			data_class[key] = [matrices[index] for index in ids]
-		
+		labels_set = set(list(c.keys()))
+		label_to_indices = {label: np.where(self.labels == label)[0]
+								 for label in labels_set}
 
-		#Get the words whose frequency is below a lower bound threshold
-		remove_list = []
+		#Lower bound filtering (remove words that occur lower than a set threshold)
+		#and upper bound filtering (keep only n instances of a label)
+		allowed_indices = [label_to_indices[label][:min(upper_bound,int(label_to_indices[label].shape[0]))] for label in labels_set if label_to_indices[label].shape[0] >= lower_bound]
+		allowed_indices = np.concatenate(allowed_indices)
 
-		for key,value in c.items():
-			if value < lower_bound:
-				remove_list.append(key)
+		self.inputs, self.labels = self.inputs[allowed_indices],self.labels[allowed_indices]
 
-		#Remove the words from the Counter
-		for word in remove_list:
-			del data_class[word]
-			
-		keys,matrices = [],[]
-			
-		#Limit the frequency of words according to an upper limit
-		for word,word_matrices in data_class.items():
-			num_examples = min(len(word_matrices),upper_bound)
-			keys.extend([word] * num_examples)
-			matrices.extend(word_matrices[:num_examples])
+		print('Length after filtering on frequency_bounds ' , self.labels.shape)
 
-
-
-		print('Length after filtering on frequency_bounds %d'%(len(keys)))
-
-		return matrices,keys
+		return None
 
 	def give_top_k_words(self, k):
 
@@ -253,12 +233,6 @@ class Base_AMI(Dataset):
 
 		#Create a Counter
 		c = Counter(self.labels.tolist())
-
-
-		if type(self.labels) is np.ndarray:
-			labels_set = set(self.labels)
-		else:
-			labels_set = set(self.labels.numpy())
 
 		labels_set = set(list(c.keys()))
 		top_k_labels,_ = zip(*c.most_common(k))
@@ -369,6 +343,9 @@ class CNN_dataset(Base_AMI):
 		self._pad_and_truncate_data()
 		self._generate_key_dicts()
 		self._generate_inputs_and_labels()
+
+		#Filter based on frequency bounds
+		self._filter_on_frequency_bounds(self.frequency_bounds)
 
 		#Keep only top k most common words (if k is np.Inf, no filtering is done, and all words are kept)
 		self._filter_top_k_words(self.k)
