@@ -286,20 +286,13 @@ class Base_AMI(Dataset):
 	def _filter_top_k_words(self, k):
 		'''Only keep the top k most common words'''
 
-		
+		#Filter only if K is less than np.Inf
+		if self.k < np.Inf:
 
-		print('Length before filtering for top %d words %d'%(k, self.labels.shape[0]))
-
-		
-
-
-		#only keep data for top k classes
-		self.inputs, self.labels = self.give_top_k_words(k)
-
-
-
-
-		print('Length after filtering for top %d words %d'%(k, self.labels.shape[0]))
+			print('Length before filtering for top %d words %d'%(k, self.labels.shape[0]))
+			#only keep data for top k classes
+			self.inputs, self.labels = self.give_top_k_words(k)
+			print('Length after filtering for top %d words %d'%(k, self.labels.shape[0]))
 
 		return None
 
@@ -361,20 +354,33 @@ class Base_AMI(Dataset):
 
 	################################## End of Helper Functions #####################################################################
 
-class CNN_Base(Base_AMI):
+class CNN_dataset(Base_AMI):
 	''' Base CNN dataset class'''
 
-	def __init__(self, split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = np.Inf, cluster = True):
+	def __init__(self, split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = np.Inf, k = np.Inf, cluster = True):
 		
 
 		super().__init__(split_set, char_threshold, frequency_bounds, snr, cluster)
 
+		self.k = k # Top k most common words will be kept (if k is np.Inf all words will be kept)
+
+		#Load and Process the data
+		self._load_data()
+		self._pad_and_truncate_data()
+		self._generate_key_dicts()
+		self._generate_inputs_and_labels()
+
+		#Keep only top k most common words (if k is np.Inf, no filtering is done, and all words are kept)
+		self._filter_top_k_words(self.k)
+
+		#Shuffle the array
+		self._split_dataset()
 
 
 
-class SiameseBase(Base_AMI):
+class SiameseTriplets(Base_AMI):
 	""" Base Siamese Class"""
-	def __init__(self, split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = np.Inf, cluster = True):
+	def __init__(self, split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = np.Inf, k = np.Inf, cluster = True):
 	
 		super().__init__(split_set, char_threshold, frequency_bounds, snr, cluster)
 
@@ -382,8 +388,30 @@ class SiameseBase(Base_AMI):
 		
 		self.examples_per_class = 15 #Default
 
+		self.k = k # Top k most common words will be kept (if k is np.Inf all words will be kept)
+
 		self.triplets = []
 		self.triplets_labels = []
+
+		#Load and Process the data
+		self._load_data()
+		self._pad_and_truncate_data()
+		self._generate_key_dicts()
+		self._generate_inputs_and_labels()
+
+		#Keep only top k most common words (if k is np.Inf, no filtering is done, and all words are kept)
+		self._filter_top_k_words(self.k)
+
+		#Siamese specific processing
+		self._split_dataset()
+		self._generate_data_class()
+		self._create_triplets()
+
+		
+		print("Triplet Shape")
+		print(self.inputs.shape, self.labels.shape)
+
+
 
 	###### Siamese Triplet specific helpers ########################################
 
@@ -448,138 +476,6 @@ class SiameseBase(Base_AMI):
 		self.inputs = torch.stack(self.triplets).cpu()
 		self.labels = torch.tensor(self.triplets_labels).cpu()
 		del self.data_class
-
-
-
-
-	################################## End of Siamese Helper Functions #####################################################################
-
-
-
-class CNN_dataset(CNN_Base):
-	'''Dataset containing mfcc features as input and the word as label'''
-
-	def __init__(self, split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = np.Inf, cluster = True):
-		
-
-		super().__init__(split_set, char_threshold, frequency_bounds, snr, cluster)
-		
-		
-
-		#Load and Process the data
-		self._load_data()
-		self._pad_and_truncate_data()
-		self._generate_key_dicts()
-		self._generate_inputs_and_labels()
-
-
-		#Shuffle the array
-		self._split_dataset()
-
-
-
-
-
-
-
-class CNN_top_k(CNN_Base):
-	'''Top k common words. Dataset containing mfcc features as input and the word as label'''
-
-	def __init__(self, k = 100, split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = np.Inf, cluster = True):
-		
-
-		super().__init__(split_set, char_threshold, frequency_bounds, snr, cluster)
-		
-		self.k = k
-
-		#Load and Process the data
-		self._load_data()
-		self._pad_and_truncate_data()
-		self._generate_key_dicts()
-		self._generate_inputs_and_labels()
-
-
-		#Top k Words
-		self._filter_top_k_words(self.k)
-
-
-		#Shuffle the array
-		self._split_dataset()
-
-
-
-		
-
-
-class SiameseTriplets(SiameseBase):
-	'''Dataset that on each iteration provides a triplet pair of acosutic segments, out of which
-	two belong to the same word, and one belongs to a different word.'''
-	
-	def __init__(self, split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = np.Inf, cluster = True):
-	
-		super().__init__(split_set, char_threshold, frequency_bounds, snr, cluster)
-
-		#Siamese triplet arguments
-		
-		self.examples_per_class = 15
-
-
-		#Load and Process the data
-		self._load_data()
-		self._pad_and_truncate_data()
-		self._generate_key_dicts()
-		self._generate_inputs_and_labels()
-
-
-
-		#Siamese specific processing
-		self._split_dataset()
-		self._generate_data_class()
-		self._create_triplets()
-
-		
-		print("Triplet Shape")
-		print(self.inputs.shape, self.labels.shape)
-
-
-class Siamese_top_k(SiameseBase):
-	''' Filters the dataset to only contain top k most frequent words.
-	Dataset that on each iteration provides a triplet pair of acosutic segments, out of which
-	two belong to the same word, and one belongs to a different word.'''
-
-	def __init__(self, k = 100, split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = np.Inf, cluster = True):
-	
-		super().__init__(split_set, char_threshold, frequency_bounds, snr, cluster)
-
-		#Siamese triplet arguments
-		
-		self.examples_per_class = 15
-		self.k = k
-
-
-		#Load and Process the data
-		self._load_data()
-		self._pad_and_truncate_data()
-		self._generate_key_dicts()
-		self._generate_inputs_and_labels()
-
-
-		#Top k Words
-		self._filter_top_k_words(self.k)
-
-		#Siamese specific processing
-		self._split_dataset()
-		self._generate_data_class()
-		self._create_triplets()
-
-		
-		print("Triplet Shape")
-		print(self.inputs.shape, self.labels.shape)
-
-
-	
-		
-
 
 
 ################################Samplers##############################################
@@ -681,3 +577,4 @@ class TopK_WordsSampler(BatchSampler):
 
 		
 		
+

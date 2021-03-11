@@ -196,10 +196,10 @@ if __name__ == '__main__':
 			print("Top %d words"%(k))
 
 			#Load the Data
-			train_ds = Siamese_top_k(k = k, split_set = "train", frequency_bounds = (0,np.Inf), snr = snr, cluster = cluster)
-			val_ds = Siamese_top_k(k = k, split_set = "val", frequency_bounds = (0,np.Inf), snr = snr, cluster = cluster)
-			test_ds = Siamese_top_k(k = k, split_set = "test", frequency_bounds = (0,np.Inf), snr = snr, cluster = cluster)
-			evaluate_ds = CNN_top_k(k = k, split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = cluster)
+			train_ds = SiameseTriplets(split_set = "train", frequency_bounds = (0,np.Inf), snr = snr, k = k, cluster = True)
+			val_ds = SiameseTriplets(split_set = "val", frequency_bounds = (0,np.Inf), snr = snr, k = k, cluster = True)
+			test_ds = SiameseTriplets(split_set = "test", frequency_bounds = (0,np.Inf), snr = snr, k = k, cluster = True)
+			evaluate_ds = CNN_dataset(split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = k, cluster = True)
 
 			#DataLoaders
 			train_dl = DataLoader(train_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)

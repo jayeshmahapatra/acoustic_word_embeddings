@@ -175,10 +175,10 @@ if __name__ == '__main__':
 	for snr in snr_values:
 
 		#Load the Data
-		train_ds = SiameseTriplets(split_set = "train", frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
-		val_ds = SiameseTriplets(split_set = "val", frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
-		test_ds = SiameseTriplets(split_set = "test", frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
-		evaluate_ds = CNN_dataset(split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = True)
+		train_ds = SiameseTriplets(split_set = "train", frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = True)
+		val_ds = SiameseTriplets(split_set = "val", frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = True)
+		test_ds = SiameseTriplets(split_set = "test", frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = True)
+		evaluate_ds = CNN_dataset(split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = True)
 
 		#DataLoaders
 		train_dl = DataLoader(train_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)

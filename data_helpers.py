@@ -8,7 +8,7 @@ import kaldi_io
 class DataHelper():
 
 
-	def __init__(self,load_list,num_examples = np.Inf):
+	def __init__(self,snr,num_examples = np.Inf):
 		'''Initializes the DataLoader Function'''
 
 		self.keys = []
@@ -18,10 +18,8 @@ class DataHelper():
 		self.num_to_word = {}
 
 
-		self.load_list = load_list
+		self.snr = snr
 		self.num_examples = num_examples
-
-		self.filetype = load_list[0].split(".")[-1] 
 
 
 
@@ -124,21 +122,45 @@ class DataHelper():
 		print('Number of Unique words ',len(c.keys()))
 		return c,self.word_to_num,self.num_to_word
 
-	def load_data(self, char_threshold = 5,frequency_bounds= (0,np.Inf)):
+
+	def load_data(self, char_threshold, frequency_bounds):
 		'''Loads the data from the file into the data object'''
+		
+		#filetype = self.load_list[0].split(".")[-1] 
+		#read_function = kaldi_io.read_mat_ark if filetype == "ark" else kaldi_io.read_mat_scp
 
-		read_function = kaldi_io.read_mat_ark if self.filetype == "ark" else kaldi_io.read_mat_scp
 
-		for load_file in self.load_list:
+		#Create the keyword to word dict	
+		if self.snr == np.Inf:
+
+			data_directory = "./Data/AMI_Clean/"
+		else:
+			data_directory = "./Data/AMI_White_SNR%d_v2/"%(self.snr)
+
+
+		keyword_path = data_directory + "text"
+		data_load_list = [data_directory+"feats.scp"]
+
+
+		keywords_df = pd.read_csv(keyword_path, sep = " ", header = None)
+		keywords_df.columns = ["keyword", "key"]
+		keyword_to_key = {}
+
+		#clean_speech_keys_list = set(list(self.word_to_num.keys()))
+
+		for row in keywords_df.itertuples():
+			keyword_to_key[row.keyword] = row.key
+		
+
+		for load_file in data_load_list:
 			file_keys,file_matrices,file_mat_lengths = [],[],[]
-			for i,(key,matrix) in enumerate(read_function(load_file)):
-				file_keys.append(key.split('_')[1])
+			for i,(keyword,matrix) in enumerate(kaldi_io.read_mat_scp(load_file)):
+				file_keys.append(keyword_to_key[keyword])
 				file_matrices.append(matrix)
 				file_mat_lengths.append(matrix.shape[0])
-				if i+1 == self.num_examples:
-					break
+	
 			#Filter the data
-			file_matrices,file_mat_lengths,file_keys = self.filter_on_character_length(file_matrices,file_mat_lengths,file_keys,char_threshold = char_threshold)
+			file_matrices,file_mat_lengths,file_keys = self.filter_on_character_length(file_matrices,file_mat_lengths,file_keys ,char_threshold = char_threshold)
 
 
 			#Add to the main list
@@ -146,9 +168,13 @@ class DataHelper():
 			self.matrices.extend(file_matrices)
 			self.mat_lengths.extend(file_mat_lengths)
 
-		self.matrices,self.mat_lengths,self.keys = self.filter_on_frequency_bounds(self.matrices,self.mat_lengths,self.keys,frequency_bounds = frequency_bounds)
+		#self.keys,self.matrices = self._filter_on_frequency_bounds(self.keys,self.matrices,frequency_bounds = self.frequency_bounds)
+
+
 
 		print('Finished Loading the Data, %d examples'%(len(self.keys)))
+
+	
 
 	def process_data(self):
 		'''Processes the loaded data'''

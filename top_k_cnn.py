@@ -39,7 +39,7 @@ from datasets import CNN_dataset, SiameseTriplets, CNN_top_k
 
 def train_model(run, k, train_dl, val_dl, snr, dropout_probability):
 
-	dev = torch.device("cuda:1") if torch.cuda.is_available() else torch.device("cpu")
+	dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 	print('Creating the Neural Net')
 
@@ -210,9 +210,9 @@ if __name__ == '__main__':
 		
 
 			#Load the Data
-			train_ds = CNN_top_k(k = k, split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = cluster)
-			val_ds = CNN_top_k(k = k, split_set = "val", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = cluster)
-			test_ds = CNN_top_k(k = k, split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, cluster = cluster)
+			train_ds = CNN_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = k, cluster = True)
+			val_ds = CNN_dataset(split_set = "val", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = k, cluster = True)
+			test_ds = CNN_dataset(split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = k, cluster = True)
 
 			#DataLoaders
 			train_dl = DataLoader(train_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
