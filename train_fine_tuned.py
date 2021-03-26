@@ -33,7 +33,7 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 #Import User defined classes
 from data_helpers import DataHelper
 from models import SimpleNet, SimpleNet_with_dropout
-from train_test_helpers import plot_learning_curves,train_loop
+from train_test_helpers import plot_learning_curves,train_loop, clean_mapping
 from datasets import CNN_dataset, SiameseTriplets
 
 def set_parameters_requires_grad(model):
@@ -91,7 +91,7 @@ if __name__ == '__main__':
 	clean_train_ds = CNN_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = np.Inf, k = np.Inf, cluster = True)
 	clean_num_to_word, clean_word_to_num = clean_train_ds.num_to_word.copy(),clean_train_ds.word_to_num.copy()
 	del clean_train_ds
-	
+
 
 
 	#Load Noisy
