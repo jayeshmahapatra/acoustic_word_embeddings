@@ -87,9 +87,26 @@ if __name__ == '__main__':
 	else:
 		snr = args.snr
 	
-	train_ds = CNN_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = True)
-	val_ds = CNN_dataset(split_set = "val", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = True)
+	#Load Clean
+	clean_train_ds = CNN_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = np.Inf, k = np.Inf, cluster = True)
+	clean_num_to_word, clean_word_to_num = clean_train_ds.num_to_word.copy(),clean_train_ds.word_to_num.copy()
+	del clean_train_ds
 	
+
+
+	#Load Noisy
+	noisy_train_ds = CNN_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = True)
+	noisy_val_ds = CNN_dataset(split_set = "val", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = True)
+	noisy_num_to_word, noisy_word_to_num = noisy_train_ds.num_to_word.copy(),noisy_train_ds.word_to_num.copy()
+
+
+	#Transform Labels of Noisy
+	noisy_train_ds.labels = clean_mapping(noisy_train_ds.labels, clean_word_to_num, noisy_num_to_word )
+	noisy_val_ds.labels = clean_mapping(noisy_val_ds.labels, clean_word_to_num, noisy_num_to_word )
+	
+
+	train_ds = noisy_train_ds
+	val_ds = noisy_val_ds
 
 	#DataLoaders
 	train_dl = DataLoader(train_ds, batch_size=bs, pin_memory = True, shuffle = True, drop_last = True)
