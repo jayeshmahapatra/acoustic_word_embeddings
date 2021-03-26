@@ -88,14 +88,10 @@ if __name__ == '__main__':
 		snr = args.snr
 	
 	#Load Clean
-	clean_train_ds = CNN_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = np.Inf, k = np.Inf, cluster = True)
-	clean_num_to_word, clean_word_to_num = clean_train_ds.num_to_word.copy(),clean_train_ds.word_to_num.copy()
-
-	np.save("/data/users/jmahapatra/data/clean_num_to_word.npy",clean_num_to_word)
-	np.save("/data/users/jmahapatra/data/clean_word_to_num.npy",clean_word_to_num)
-
-	del clean_train_ds
-
+	clean_num_to_word_filepath = "/data/users/jmahapatra/data/clean_num_to_word.npy"
+	clean_word_to_num_filepath = "/data/users/jmahapatra/data/clean_word_to_num.npy"
+	clean_num_to_word, clean_word_to_num = np.load(clean_num_to_word_filepath).item(),np.load(clean_word_to_num_filepath).item()
+	
 
 
 	#Load Noisy
