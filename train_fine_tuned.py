@@ -90,7 +90,7 @@ if __name__ == '__main__':
 	#Load Clean
 	clean_num_to_word_filepath = "/data/users/jmahapatra/data/clean_num_to_word.npy"
 	clean_word_to_num_filepath = "/data/users/jmahapatra/data/clean_word_to_num.npy"
-	clean_num_to_word, clean_word_to_num = np.load(clean_num_to_word_filepath).item(),np.load(clean_word_to_num_filepath).item()
+	clean_num_to_word, clean_word_to_num = np.load(clean_num_to_word_filepath, allow_pickle = True).item(),np.load(clean_word_to_num_filepath, allow_pickle = True).item()
 	
 
 
