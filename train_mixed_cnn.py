@@ -125,7 +125,7 @@ if __name__ == '__main__':
 
 	print('Creating the Neural Net')
 
-	num_output = len(train_ds.c.keys())
+	num_output = len(clean_train_ds.c.keys())
 
 
 	if args.dropout:
