@@ -89,7 +89,7 @@ if __name__ == '__main__':
 	noisy_test_ds = CNN_dataset(split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = True)
 	clean_num_to_word, clean_word_to_num = clean_test_ds.num_to_word.copy(),clean_test_ds.word_to_num.copy()
 	del clean_test_ds
-	noisy_num_to_word, noisy_word_to_num = noisy_train_ds.num_to_word.copy(),noisy_train_ds.word_to_num.copy()
+	noisy_num_to_word, noisy_word_to_num = noisy_test_ds.num_to_word.copy(),noisy_test_ds.word_to_num.copy()
 
 
 

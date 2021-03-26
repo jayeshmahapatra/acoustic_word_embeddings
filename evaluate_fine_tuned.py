@@ -33,7 +33,7 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 #Import User defined classes
 from data_helpers import DataHelper
 from models import SimpleNet, SimpleNet_with_dropout, SiameseNet
-from train_test_helpers import evaluate_model,test_model, baseline
+from train_test_helpers import evaluate_model,test_model, baseline, clean_mapping
 from datasets import CNN_dataset, SiameseTriplets
 
 if __name__ == '__main__':
@@ -90,7 +90,8 @@ if __name__ == '__main__':
 	noisy_test_ds = CNN_dataset(split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = True)
 	clean_num_to_word, clean_word_to_num = clean_test_ds.num_to_word.copy(),clean_test_ds.word_to_num.copy()
 	del clean_test_ds
-	
+	noisy_num_to_word, noisy_word_to_num = noisy_test_ds.num_to_word.copy(),noisy_test_ds.word_to_num.copy()
+
 	#Transform Labels of Noisy
 	noisy_test_ds.labels = clean_mapping(noisy_test_ds.labels, clean_word_to_num, noisy_num_to_word)
 	del clean_test_ds
