@@ -91,9 +91,9 @@ if __name__ == '__main__':
 	clean_train_ds = CNN_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = np.Inf, k = np.Inf, cluster = True)
 	clean_num_to_word, clean_word_to_num = clean_train_ds.num_to_word.copy(),clean_train_ds.word_to_num.copy()
 
-	np.save(clean_num_to_word, "/data/users/jmahapatra/data/clean_num_to_word.npy")
-	np.save(clean_word_to_num, "/data/users/jmahapatra/data/clean_word_to_num.npy")
-	
+	np.save("/data/users/jmahapatra/data/clean_num_to_word.npy",clean_num_to_word)
+	np.save("/data/users/jmahapatra/data/clean_word_to_num.npy",clean_word_to_num)
+
 	del clean_train_ds
 
 
