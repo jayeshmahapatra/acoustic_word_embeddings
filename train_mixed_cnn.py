@@ -33,7 +33,7 @@ from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 #Import User defined classes
 from data_helpers import DataHelper
 from models import SimpleNet, SimpleNet_with_dropout
-from train_test_helpers import plot_learning_curves,train_loop
+from train_test_helpers import plot_learning_curves,train_loop, clean_mapping
 from datasets import CNN_dataset, SiameseTriplets
 
 

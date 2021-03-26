@@ -30,6 +30,12 @@ import torch.optim as optim
 from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 
 
+def clean_mapping(yb, clean_word_to_num, noisy_num_to_word):
+	'''Map given labels to mapping of the clean dataset'''
+	mapped_yb = [clean_word_to_num[noisy_num_to_word[yb[i].item()]] for i in range(yb.shape[0])]
+	mapped_yb = torch.tensor(mapped_yb)
+	
+	return mapped_yb
 
 def accuracy(out, yb):
 	preds = torch.argmax(out, dim=1)
