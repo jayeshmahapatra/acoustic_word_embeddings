@@ -130,7 +130,7 @@ if __name__ == '__main__':
 		clean_model_name += "_dropout_%d"%(int(args.probability*100))
 
 	clean_model_name += ".pth"
-	clean_model_name = save_path + clean_model_name
+	clean_model_save_path = save_path + clean_model_name
 
 	#Load the Clean Model
 	net.load_state_dict(torch.load(clean_model_save_path))
@@ -168,7 +168,7 @@ if __name__ == '__main__':
 	
 	lc_save_path = "/data/users/jmahapatra/data/learning_curves/"
 
-	lc_name = "learning_curves"
+	lc_name = "learning_curves_fine_tuned"
 	if args.noisy:
 		lc_name += "_noisy_snr%d"%(args.snr)
 	else:
