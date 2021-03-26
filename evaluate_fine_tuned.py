@@ -86,10 +86,10 @@ if __name__ == '__main__':
 
 	
 	#Load Clean and Noisy
-	clean_test_ds = CNN_dataset(split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = np.Inf, k = np.Inf, cluster = True)
 	noisy_test_ds = CNN_dataset(split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = True)
-	clean_num_to_word, clean_word_to_num = clean_test_ds.num_to_word.copy(),clean_test_ds.word_to_num.copy()
-	del clean_test_ds
+	clean_num_to_word_filepath = "/data/users/jmahapatra/data/clean_num_to_word.npy"
+	clean_word_to_num_filepath = "/data/users/jmahapatra/data/clean_word_to_num.npy"
+	clean_num_to_word, clean_word_to_num = np.load(clean_num_to_word_filepath).item(),np.load(clean_word_to_num_filepath).item()
 	noisy_num_to_word, noisy_word_to_num = noisy_test_ds.num_to_word.copy(),noisy_test_ds.word_to_num.copy()
 
 	#Transform Labels of Noisy
