@@ -95,7 +95,6 @@ if __name__ == '__main__':
 
 	#Transform Labels of Noisy
 	noisy_test_ds.labels = clean_mapping(noisy_test_ds.labels, clean_word_to_num, noisy_num_to_word)
-	del clean_test_ds
 
 	
 	test_ds = noisy_test_ds
