@@ -124,7 +124,7 @@ class Base_AMI(Dataset):
 		#Truncate the dimensions of the data
 		self.matrices = self._truncate_shapes(self.matrices,max_length=200,num_mfcc_features=40)
 		#Pad the matrices
-		self.matrices,self.mat_lengths = self._pad_sequences(self.matrices,n_padded = 100,center_padded = True)
+		self.matrices,self.mat_lengths = self._pad_sequences(self.matrices,n_padded = 128,center_padded = True)
 		self.matrices = np.transpose(self.matrices,(0,2,1))
 
 		#delete mat_lengths

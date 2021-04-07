@@ -1,4 +1,4 @@
 #Don't track these folders
-Data/
-Models/
-.ipynb_checkpoints/
+AweNoise/Data/
+AweNoise/Models/
+AweNoise/Notebooks/.ipynb_checkpoints/
