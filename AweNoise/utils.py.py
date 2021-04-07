@@ -30,28 +30,32 @@ import torch.optim as optim
 from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 
 
-def clean_mapping(yb, clean_word_to_num, noisy_num_to_word):
-	'''Map given labels to mapping of the clean dataset'''
-	mapped_yb = [clean_word_to_num[noisy_num_to_word[yb[i].item()]] for i in range(yb.shape[0])]
-	mapped_yb = torch.tensor(mapped_yb)
-	
-	return mapped_yb
+'''Script containing Utilities to train and test awe models as well as evaluate AWEs'''
+
+
+############################################## Metrics and Losses #########################################################
+
 
 def accuracy(out, yb):
+	'''Accuracy of Classification Model'''
 	preds = torch.argmax(out, dim=1)
 	return (preds == yb).float().mean()
 
 def cos_distance(cos,x_1,x_2):
+	'''Cosine Distance'''
 	return (1- cos(x_1,x_2))/2
 
 def cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding,cos, dev):
+	'''Cosine Hinge Loss'''
 	m = 0.15
 	lower_bound = torch.tensor(0.0).to(dev, non_blocking = True)
 	a = torch.max(lower_bound,m + cos_distance(cos, word_embedding, same_word_embedding) - cos_distance(cos, word_embedding, diff_word_embedding))
 	return torch.mean(a)
 
-def siamese_train_loop(net,num_epochs,train_dl,val_dl,optimizer,dev,save_path = "./Models/siamese_best_model.pth",verbose = True):
+############################################### Training Loops ############################################################
 
+def siamese_train_loop(net,num_epochs,train_dl,val_dl,optimizer,dev,save_path = "./Models/siamese_best_model.pth",verbose = True):
+	'''Training Loop to train a Siamese Network to bring Embeddings of Same labels close, while pushing embeddings of different labels apart'''
 
 	#Whether to save model every few epochs
 	save_epochs = False
@@ -136,7 +140,8 @@ def siamese_train_loop(net,num_epochs,train_dl,val_dl,optimizer,dev,save_path = 
 
 
 
-def train_loop(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path = "./Models/awe_best_model.pth",verbose = True):
+def classifier_train_loop(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path = "./Models/awe_best_model.pth",verbose = True):
+	'''Training Loop for a Classifier'''
 	
 	#Whether to save model every few epochs
 	save_epochs = False
@@ -227,6 +232,129 @@ def train_loop(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path 
 	return hist
 
 
+################################################################## Model Testing ###########################################################
+
+def test_classifier(net,test_dl,dev):
+	'''Test Classification Accuracy'''
+	test_acc = 0
+	if dev.type == 'cuda':
+		for xb,yb in test_dl:
+			#Move to GPU
+			xb,yb = xb.to(dev, non_blocking=True),yb.to(dev, non_blocking=True)
+			y_pred = net(xb)
+			test_acc += accuracy(y_pred,yb.long())
+		test_acc = test_acc/len(test_dl)
+	elif dev.type == 'cpu':
+		for xb,yb in test_dl:
+			y_pred = net(x_test)
+			test_acc += accuracy(y_pred,yb.long())
+		test_acc = test_acc/len(test_dl)
+
+	print("Test Accuracy of best model is %f"%(test_acc))
+
+	if dev.type == 'cuda':
+		test_acc = test_acc.detach().cpu().numpy()
+	else:
+		test_acc = test_acc.detach().numpy()
+	return test_acc
+
+
+def test_siamese_model(net,test_dl, dev):
+	test_loss = 0
+	net.eval()
+
+	#Cosine Similarity
+	cos = nn.CosineSimilarity(dim=1, eps=1e-6)
+
+	with torch.no_grad():
+		for i,(test_data,test_labels) in enumerate(test_dl):
+
+			#print(i)
+
+			#show_cuda_memory()
+			#if dev.type == 'cuda' and not test_data.is_cuda:
+			#    test_data = test_data.to(dev, non_blocking=True)
+
+			word = test_data[:,0,:].to(dev)
+			same_word = test_data[:,1,:].to(dev)
+			diff_word = test_data[:,2,:].to(dev)
+
+			word_embedding = net(word)
+			same_word_embedding = net(same_word)
+			diff_word_embedding = net(diff_word)
+
+			test_data.to('cpu')
+
+			test_loss += cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding, cos, dev)
+			#show_cuda_memory()
+	final_test_loss = test_loss/len(test_dl)
+	print("Test Loss is %.3f"%(final_test_loss))
+	return final_test_loss
+
+
+
+def baseline(train_ds, test_ds):
+	'''Baseline Classification Accuracy'''
+
+	x_train, y_train = train_ds.inputs.numpy(), train_ds.labels.numpy()
+	x_test, y_test = test_ds.inputs.numpy(), test_ds.labels.numpy()
+
+	#Create Dummy classifier
+	dummy_clf = DummyClassifier(strategy="most_frequent")
+
+	#Fit dummy clf
+	dummy_clf.fit(x_train, y_train)
+
+	#Return mean accuracy on test
+	return dummy_clf.score(x_test, y_test)
+
+
+
+	############################################################### Evaluate AWEs ##########################################################
+
+
+def evaluate_embeddings(embeddings, labels):
+	'''Evaluate AWEs based on Same-Different Task
+	Task : Classify if a pair of embeddings belong to the same label, given their distance
+	metric_reported : Average Precision
+	'''
+
+	#Calculate pairwise cosine distance
+	distances = pairwise_distances(embeddings, metric='cosine')
+	#Calculate pairwise cosine similarity
+	similarity = pairwise_kernels(embeddings, metric = 'cosine')
+	
+	
+	
+	#Create labels of whether the words are same or not
+	eval_labels = (labels[:,None]==labels).astype(float)
+	
+	
+	
+	#Remove the diagonal elements (word pairs with themselves)
+	mask = np.array(np.tril(np.ones((similarity.shape[0],similarity.shape[0]), dtype= int),-1),dtype = bool)
+	similarity = similarity[mask]
+	distances = distances[mask]
+	eval_labels = eval_labels[mask]
+		
+	#flatten the pairwise arrays
+	distances = np.ravel(distances)
+	similarity = np.ravel(similarity)
+	#Flatten the labels
+	eval_labels = np.ravel(eval_labels)
+	
+	num_positive = sum(eval_labels==1)
+	num_negative = eval_labels.shape[0]-num_positive
+	print('The number of positive examples %d and negative examples %d'%(num_positive,num_negative))
+	#Calculate the Average Precision
+	avg_p = average_precision_score(eval_labels,similarity)
+	precision, recall, _ = precision_recall_curve(eval_labels,similarity)
+
+
+
+	return avg_p, precision, recall
+
+
 def evaluate_model(net,test_dl, dev, num_examples = np.Inf, curve_path = None):
 	embeddings = None
 	labels = None
@@ -257,57 +385,24 @@ def evaluate_model(net,test_dl, dev, num_examples = np.Inf, curve_path = None):
 	print("Size of labels %d"%(labels.shape[0]))
 	print("Number of unique words %d"%(np.unique(labels).shape[0]))
 
-	#Calculate pairwise cosine distance
-	distances = pairwise_distances(embeddings, metric='cosine')
-	#Calculate pairwise cosine similarity
-	similarity = pairwise_kernels(embeddings, metric = 'cosine')
-	
-	
-	
-	#Create labels of whether the words are same or not
-	if torch.is_tensor(labels):
-		labels = labels.detach().numpy()
-		
-	eval_labels = (labels[:,None]==labels).astype(float)
-	
-	
-	
-	#Remove the diagonal elements (word pairs with themselves)
-	mask = np.array(np.tril(np.ones((similarity.shape[0],similarity.shape[0]), dtype= int),-1),dtype = bool)
-	similarity = similarity[mask]
-	distances = distances[mask]
-	eval_labels = eval_labels[mask]
-		
-	#flatten the pairwise arrays
-	distances = np.ravel(distances)
-	similarity = np.ravel(similarity)
-	#Flatten the labels
-	eval_labels = np.ravel(eval_labels)
-	
-	num_positive = sum(eval_labels==1)
-	num_negative = eval_labels.shape[0]-num_positive
-	print('The number of positive examples %d and negative examples %d'%(num_positive,num_negative))
-	#Calculate the Average Precision
-	avg_p = average_precision_score(eval_labels,similarity)
+	avg_p, precision, recall = evaluate_embeddings(embeddings, labels)
 
 	if curve_path is not None:
 		#Save the precision recall curve
 		print("saving precision recall curve")
 		print(curve_path)
-		precision, recall, _ = precision_recall_curve(eval_labels,similarity)
 		disp = PrecisionRecallDisplay(precision=precision, recall=recall)
 		disp.plot()
 		plt.savefig(curve_path)
 		plt.close()
 
-	#avg_p = average_precision_score(eval_labels,2-distances)
-	#avg_p = average_precision_score(eval_labels,2-distances)
-	#print('Average Precision is %f'%(avg_p))
+	
 	return avg_p
 
 
 
 def evaluate_model_paper(net,evaluate_dl, dev,show_plot = True):
+	'''Function used by Kamper et al. for Same-Different Task'''
 
 	#Internal function
 	def generate_matches_array(labels):
@@ -397,43 +492,9 @@ def evaluate_model_paper(net,evaluate_dl, dev,show_plot = True):
 		plt.xlabel("Recall")
 		plt.ylabel("Precision")
 
-def test_model(net,test_dl,dev):
-	test_acc = 0
-	if dev.type == 'cuda':
-		for xb,yb in test_dl:
-			#Move to GPU
-			xb,yb = xb.to(dev, non_blocking=True),yb.to(dev, non_blocking=True)
-			y_pred = net(xb)
-			test_acc += accuracy(y_pred,yb.long())
-		test_acc = test_acc/len(test_dl)
-	elif dev.type == 'cpu':
-		for xb,yb in test_dl:
-			y_pred = net(x_test)
-			test_acc += accuracy(y_pred,yb.long())
-		test_acc = test_acc/len(test_dl)
-
-	print("Test Accuracy of best model is %f"%(test_acc))
-
-	if dev.type == 'cuda':
-		test_acc = test_acc.detach().cpu().numpy()
-	else:
-		test_acc = test_acc.detach().numpy()
-	return test_acc
 
 
-def baseline(train_ds, test_ds):
 
-	x_train, y_train = train_ds.inputs.numpy(), train_ds.labels.numpy()
-	x_test, y_test = test_ds.inputs.numpy(), test_ds.labels.numpy()
-
-	#Create Dummy classifier
-	dummy_clf = DummyClassifier(strategy="most_frequent")
-
-	#Fit dummy clf
-	dummy_clf.fit(x_train, y_train)
-
-	#Return mean accuracy on test
-	return dummy_clf.score(x_test, y_test)
 
 
 def evaluate_siamese_model(net,test_dl, dev, num_examples = 11000):
@@ -469,85 +530,29 @@ def evaluate_siamese_model(net,test_dl, dev, num_examples = 11000):
 			
 			if embeddings.shape[0] > num_examples:
 				break
-
-
 	
-	#Calculate pairwise cosine distance
-	distances = pairwise_distances(embeddings, metric='cosine')
-	#Calculate pairwise cosine similarity
-	similarity = pairwise_kernels(embeddings, metric = 'cosine')
-	
-	
-	
-	#Create labels of whether the words are same or not
-	if torch.is_tensor(labels):
-		labels = labels.detach().numpy()
-		
-	eval_labels = (labels[:,None]==labels).astype(float)
-	
-	
-	
-	#Remove the diagonal elements (word pairs with themselves)
-	mask = np.array(np.tril(np.ones((similarity.shape[0],similarity.shape[0]), dtype= int),-1),dtype = bool)
-	similarity = similarity[mask]
-	distances = distances[mask]
-	eval_labels = eval_labels[mask]
-		
-	#flatten the pairwise arrays
-	distances = np.ravel(distances)
-	similarity = np.ravel(similarity)
-	#Flatten the labels
-	eval_labels = np.ravel(eval_labels)
-	
-	num_positive = sum(eval_labels==1)
-	num_negative = eval_labels.shape[0]-num_positive
-	print('The number of positive examples %d and negative examples %d'%(num_positive,num_negative))
-	#Calculate the Average Precision
-	avg_p = average_precision_score(eval_labels,similarity)
-	#avg_p = average_precision_score(eval_labels,2-distances)
-	#avg_p = average_precision_score(eval_labels,2-distances)
-	print('Average Precision is %f'%(avg_p))
+	avg_p, precision, recall = evaluate_embeddings(embeddings, labels)
 	return avg_p
 
-def test_siamese_model(net,test_dl, dev):
-	test_loss = 0
-	net.eval()
 
-	#Cosine Similarity
-	cos = nn.CosineSimilarity(dim=1, eps=1e-6)
 
-	with torch.no_grad():
-		for i,(test_data,test_labels) in enumerate(test_dl):
 
-			#print(i)
-
-			#show_cuda_memory()
-			#if dev.type == 'cuda' and not test_data.is_cuda:
-			#    test_data = test_data.to(dev, non_blocking=True)
-
-			word = test_data[:,0,:].to(dev)
-			same_word = test_data[:,1,:].to(dev)
-			diff_word = test_data[:,2,:].to(dev)
-
-			word_embedding = net(word)
-			same_word_embedding = net(same_word)
-			diff_word_embedding = net(diff_word)
-
-			test_data.to('cpu')
-
-			test_loss += cos_hinge_loss(word_embedding,same_word_embedding,diff_word_embedding, cos, dev)
-			#show_cuda_memory()
-	final_test_loss = test_loss/len(test_dl)
-	print("Test Loss is %.3f"%(final_test_loss))
-	return final_test_loss
-	
 
 	
 
+###################################################################### Misc ################################################################3
 
 
+def clean_mapping(yb, clean_word_to_num, noisy_num_to_word):
+	'''Map given labels to mapping of the clean dataset'''
+	mapped_yb = [clean_word_to_num[noisy_num_to_word[yb[i].item()]] for i in range(yb.shape[0])]
+	mapped_yb = torch.tensor(mapped_yb)
+	
+	return mapped_yb
+	
 
 def plot_learning_curves(hist,name = 'learning_curves.png', show = True):
+	'''Plot Learning Curves using model training history'''
 	
 	num_epochs = len(hist['train_loss'])
 	fig, axs = plt.subplots(2, 1, figsize = (9,9))
@@ -576,7 +581,9 @@ def plot_learning_curves(hist,name = 'learning_curves.png', show = True):
 		plt.show()
 	plt.close()
 
+
 def run_data_study(splits,num_epochs,train_ds,val_dl,dev):
+	'''Study Model Performance by varying data size'''
 	lengths = [int(len(train_ds)*(1/splits)) for  i in range(splits)]
 	
 	if sum(lengths) != len(train_ds):
