@@ -3,15 +3,13 @@ import numpy as np
 import pandas as pd
 import string
 from collections import Counter
-import kaldi_io
-import pdb
 
 #Scikit
 from sklearn import manifold
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import NearestNeighbors
-from sklearn.metrics import pairwise_distances,average_precision_score
-from sklearn.metrics import PrecisionRecallDisplay,precision_recall_curve
+from sklearn.metrics import pairwise_distances, average_precision_score
+from sklearn.metrics import PrecisionRecallDisplay, precision_recall_curve
 from sklearn.metrics.pairwise import pairwise_kernels
 from sklearn.dummy import DummyClassifier
 from scipy import stats
@@ -24,8 +22,6 @@ import seaborn as sns
 
 #Torch and utilities
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import TensorDataset,DataLoader,random_split,ConcatDataset
 
@@ -141,7 +137,7 @@ def siamese_train_loop(net,num_epochs,train_dl,val_dl,optimizer,dev,save_path = 
 
 
 def classifier_train_loop(net,num_epochs,train_dl,val_dl,optimizer,criterion,dev,save_path = "./Models/awe_best_model.pth",verbose = True):
-	'''Training Loop for a Classifier'''
+	'''Training Loop for a classifier'''
 	
 	#Whether to save model every few epochs
 	save_epochs = False
@@ -313,10 +309,22 @@ def baseline(train_ds, test_ds):
 	############################################################### Evaluate AWEs ##########################################################
 
 
-def evaluate_embeddings(embeddings, labels):
+#Evaluate Embeddings
+def evaluate_embeddings(embeddings, labels, curve = False):
+	
 	'''Evaluate AWEs based on Same-Different Task
-	Task : Classify if a pair of embeddings belong to the same label, given their distance
-	metric_reported : Average Precision
+	Same-Different Task is to classify if a pair of embeddings belong to the same label,
+	given their distance. The metric reported is average precision.
+
+	Arguments:
+		embeddings (Numpy Array): An Array of N x embedding_dimension for embeddings of N word instances
+		labels (Numpy Array): Labels of the N word instances
+		curve (Boolean, default -> False) : Whether the whole precision-recall curve is to be returned
+
+	Returns:
+		average_precision (Float) : Average Precision calculated on the Same-Different Task
+		curve_points (Tuple of List) : A tuple containing precision and recall points for the Precision-Recall Curve
+	
 	'''
 
 	#Calculate pairwise cosine distance
@@ -347,12 +355,15 @@ def evaluate_embeddings(embeddings, labels):
 	num_negative = eval_labels.shape[0]-num_positive
 	print('The number of positive examples %d and negative examples %d'%(num_positive,num_negative))
 	#Calculate the Average Precision
-	avg_p = average_precision_score(eval_labels,similarity)
-	precision, recall, _ = precision_recall_curve(eval_labels,similarity)
+	average_precision = average_precision_score(eval_labels,similarity)
+	if curve:
+		precision, recall, _ = precision_recall_curve(eval_labels,similarity)
+		curve_points = (precision, recall)
+	else:
+		curve_points = (None, None)
 
+	return average_precision, curve_points
 
-
-	return avg_p, precision, recall
 
 
 def evaluate_model(net,test_dl, dev, num_examples = np.Inf, curve_path = None):
@@ -385,11 +396,13 @@ def evaluate_model(net,test_dl, dev, num_examples = np.Inf, curve_path = None):
 	print("Size of labels %d"%(labels.shape[0]))
 	print("Number of unique words %d"%(np.unique(labels).shape[0]))
 
-	avg_p, precision, recall = evaluate_embeddings(embeddings, labels)
+	avg_p, curve_points = evaluate_embeddings(embeddings, labels, curve = True)
+
 
 	if curve_path is not None:
 		#Save the precision recall curve
 		print("saving precision recall curve")
+		precision, recall = curve_points[0],curve_points[1]
 		print(curve_path)
 		disp = PrecisionRecallDisplay(precision=precision, recall=recall)
 		disp.plot()
