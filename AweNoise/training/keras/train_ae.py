@@ -35,7 +35,6 @@ if __name__ == '__main__':
 	
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-n','--noisy',help = "Noisy dataset", action = "store_true")
-	parser.add_argument('-ne','--num_examples', type = int, default = 11000,  help = "Intger : Number of test examples to evaluate on")
 	parser.add_argument('-snr', '--snr', type = int, default = -10, help = "SNR of the AMI Noisy data (required if noisy)")
 	parser.add_argument('-lg', '--limit_gpu_memory_growth', action = "store_true", help = "Limit GPU Memory Growth (helpful for windows)")
 	args = parser.parse_args()
@@ -53,6 +52,9 @@ if __name__ == '__main__':
 	else:
 		print("Parser Arguments Valid")
 
+	
+
+
 	############# GPU ###################
 	print("Using Tensorflow GPU ", tf.test.is_built_with_cuda()) #If TF is using GPU
 	gpus = tf.config.list_physical_devices('GPU')
@@ -61,8 +63,11 @@ if __name__ == '__main__':
 	if args.limit_gpu_memory_growth:
 		limit_gpu_memory_growth(gpus)
 
+	#Assign SNR of Dataset
+	snr = args.snr if args.noisy else np.Inf #SNR if Noisy, else SNR is Infinity
+	
+	print("Loading the Data")
 
-	snr, num_examples = args.snr, args.num_examples
 	#Load Data using torch dataset
 	train_ds = CNN_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = False)
 	val_ds = CNN_dataset(split_set = "val", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = False)
@@ -72,9 +77,10 @@ if __name__ == '__main__':
 	#Get the numpy arrays and delete the dataset object (Keras only needs numpy arrays)
 	x_train,train_labels = train_ds.inputs.numpy(), train_ds.labels.numpy()
 	x_val,val_labels = val_ds.inputs.numpy(), val_ds.labels.numpy()
-	x_test,val_labels = val_ds.inputs.numpy(), val_ds.labels.numpy()
+	x_test,test_labels = val_ds.inputs.numpy(), val_ds.labels.numpy()
 	del train_ds,val_ds,test_ds
 
+	print("Creating the Model")
 
 	#Create an AE Model
 	input_shape = x_train.shape[1:]
@@ -90,19 +96,23 @@ if __name__ == '__main__':
 	lstm_autoencoder.compile(optimizer = optimizer, loss = "mse")
 
 	#Number of Epochs and Batch Size
-	num_epochs = 30
+	num_epochs = 5
 	batch_size = 64
 
 	#Model Callbacks for Checkpointing and Early Stopping
 
 	#Model Checkpoint Path
 	path_checkpoint = "lstm_autoencoder_checkpoint.h5"
+	lc_save_path = "lc.png"
 
 	#Get the callbacks
 	es_callback,modelckpt_callback = create_callbacks(path_checkpoint, early_stopping_patience = 10)
 
 	#Model Summary
 	lstm_autoencoder.summary()
+
+
+	print("Training")
 
 	#Train the model
 	history = lstm_autoencoder.fit(
@@ -114,16 +124,25 @@ if __name__ == '__main__':
 	    callbacks=[es_callback, modelckpt_callback]
 	)
 
+	print("Laoding the best Model")
 	#Load the best model
 	lstm_autoencoder = keras.models.load_model(path_checkpoint)
 
 	#Save the learning Curves and Save
 	save_keras_learning_curves(history, lc_save_path)
 
+
+	print("Testing the best Model")
 	#Test Model
 	test_ae_model(lstm_autoencoder, x_test)
 
+	print("Evaluating Embeddings of the Best Model")
+	
 	#Evaluate the Quality of Embeddings
-	test_embeddings = lstm_autoencoder.predict(x_test, batch_size = 128)
-	evaluate_embeddings(test_embeddings, test_labels)
+	#Evaluate Encoder
+	encoder = keras.Model(lstm_autoencoder.layers[0].input, lstm_autoencoder.layers[2].output)
+	test_embeddings = encoder.predict(x_test, batch_size = 128)
+	average_precision, curve_points = evaluate_embeddings(test_embeddings, test_labels)
+
+	print(average_precision)
 

@@ -2,3 +2,6 @@
 AweNoise/Data/
 AweNoise/Models/
 AweNoise/Notebooks/.ipynb_checkpoints/
+AweNoise.egg-info/
+*__pycache__/
+*.h5

@@ -60,7 +60,6 @@ class Base_AMI(Dataset):
 		#filetype = self.load_list[0].split(".")[-1] 
 		#read_function = kaldi_io.read_mat_ark if filetype == "ark" else kaldi_io.read_mat_scp
 
-
 		#Create the keyword to word dict
 		if self.cluster:
 
@@ -76,10 +75,9 @@ class Base_AMI(Dataset):
 
 		else:
 			if self.snr == np.Inf:
-
-				data_directory = "./Data/AMI_Clean/"
+				data_directory = "C:/Users/jayes/Downloads/LSV/Data/AMI_Clean/"
 			else:
-				data_directory = "./Data/AMI_White_SNR%d_v2/"%(self.snr)
+				data_directory = "C:/Users/jayes/Downloads/LSV/Data/AMI_White_SNR%d_v2/"%(self.snr)
 
 
 			keyword_path = data_directory + "text"

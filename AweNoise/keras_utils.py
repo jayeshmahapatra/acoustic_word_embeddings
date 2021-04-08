@@ -40,7 +40,7 @@ def create_callbacks(checkpoint_path, early_stopping_patience = 10):
 	return es_callback,modelckpt_callback
 
 # Testing Models
-def test_ae(model,x_test, plot = False):
+def test_ae_model(model,x_test, plot = False):
 
 	
 	#Predict based on Test Data
@@ -136,17 +136,21 @@ def evaluate_embeddings(embeddings, labels, curve = False):
 
 
 ####################### Misc #######################
+
 def limit_gpu_memory_growth(gpus):
 	'''Function to limit GPU Memory Growth (Helpful in Windows to avoid runtime errors)'''
 	if gpus:
-    try:
-        # Currently, memory growth needs to be the same across GPUs
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
-        logical_gpus = tf.config.experimental.list_logical_devices('GPU')
-        print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
-    except RuntimeError as e:
-        # Memory growth must be set before GPUs have been initialized
-        print(e)
+		try:
+			# Currently, memory growth needs to be the same across GPUs
+			for gpu in gpus:
+				tf.config.experimental.set_memory_growth(gpu, True)
+			logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+			print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+		except RuntimeError as e:
+			# Memory growth must be set before GPUs have been initialized
+			print(e)
+
+def save_keras_learning_curves(history, lc_save_path):
+	pass
 
 
