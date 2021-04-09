@@ -96,7 +96,7 @@ if __name__ == '__main__':
 	lstm_autoencoder.compile(optimizer = optimizer, loss = "mse")
 
 	#Number of Epochs and Batch Size
-	num_epochs = 5
+	num_epochs = 200
 	batch_size = 64
 
 	#Model Callbacks for Checkpointing and Early Stopping
