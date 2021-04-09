@@ -69,9 +69,9 @@ if __name__ == '__main__':
 	print("Loading the Data")
 
 	#Load Data using torch dataset
-	train_ds = CNN_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = False)
-	val_ds = CNN_dataset(split_set = "val", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = False)
-	test_ds = CNN_dataset(split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = False)
+	train_ds = CNN_dataset(split_set = "train", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = True)
+	val_ds = CNN_dataset(split_set = "val", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = True)
+	test_ds = CNN_dataset(split_set = "test", char_threshold = 5, frequency_bounds = (0,np.Inf), snr = snr, k = np.Inf, cluster = True)
 
 
 	#Get the numpy arrays and delete the dataset object (Keras only needs numpy arrays)
@@ -102,8 +102,8 @@ if __name__ == '__main__':
 	#Model Callbacks for Checkpointing and Early Stopping
 
 	#Model Checkpoint Path
-	path_checkpoint = "lstm_autoencoder_checkpoint.h5"
-	lc_save_path = "lc.png"
+	path_checkpoint = "/data/users/jmahapatra/models/keras/lstm_ae.h5"
+	lc_save_path = "/data/users/jmahapatra/data/lstm_ae_lc.png"
 
 	#Get the callbacks
 	es_callback,modelckpt_callback = create_callbacks(path_checkpoint, early_stopping_patience = 10)

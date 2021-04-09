@@ -1,6 +1,4 @@
 #Don't track these folders
-AweNoise/Data/
-AweNoise/Models/
 AweNoise/Notebooks/.ipynb_checkpoints/
 AweNoise.egg-info/
 *__pycache__/
